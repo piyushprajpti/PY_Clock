@@ -1,5 +1,6 @@
 package com.piyushprajpti.pyclock
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,7 +12,14 @@ import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
 fun PYQuoteApp() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Screen.MainFeed.route) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.MainFeed.route,
+        enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
+        exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
+        popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
+        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) }
+    ) {
         composable(route = Screen.MainFeed.route) {
             MainFeed(onSettingClick = {
                 navController.navigate(Screen.SettingScreen.route)
@@ -19,7 +27,9 @@ fun PYQuoteApp() {
         }
 
         composable(route = Screen.SettingScreen.route) {
-            SettingScreen()
+            SettingScreen(onBackClick = {
+                navController.popBackStack()
+            })
         }
     }
 }

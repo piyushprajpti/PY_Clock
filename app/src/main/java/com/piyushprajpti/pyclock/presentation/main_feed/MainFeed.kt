@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainFeed(
@@ -29,9 +30,21 @@ fun MainFeed(
         mutableStateOf(0)
     }
 
+    val topBarTitle = remember {
+        mutableStateOf("Clock")
+    }
+
+    val tbt = when(activeButton.value) {
+         0 -> "Clock"
+            1 -> "Alarm"
+        2 -> "Stop Watch"
+        3 -> "Timer"
+        else -> "Other"
+    }
+
     Scaffold(
         topBar = {
-            TopBar(title = "Clock", onSettingClick = { onSettingClick() })
+            TopBar(title = tbt, onSettingClick = { onSettingClick() })
         },
 
         bottomBar = {
@@ -64,6 +77,7 @@ fun MainFeed(
             modifier = Modifier
                 .padding(it)
                 .background(MaterialTheme.colorScheme.background)
+                .padding(20.dp)
         ) {
 
         }

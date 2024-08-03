@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.piyushprajpti.pyclock.ui.theme.Typography
@@ -39,6 +40,7 @@ fun TopBar(
         Text(
             text = title,
             style = Typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
             fontSize = 28.sp,
             color = MaterialTheme.colorScheme.primary
         )
