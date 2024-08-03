@@ -13,7 +13,9 @@ fun PYQuoteApp() {
 
     NavHost(navController = navController, startDestination = Screen.MainFeed.route) {
         composable(route = Screen.MainFeed.route) {
-            MainFeed()
+            MainFeed(onSettingClick = {
+                navController.navigate(Screen.SettingScreen.route)
+            })
         }
 
         composable(route = Screen.SettingScreen.route) {
