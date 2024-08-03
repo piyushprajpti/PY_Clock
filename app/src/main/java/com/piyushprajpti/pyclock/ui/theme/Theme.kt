@@ -1,6 +1,5 @@
 package com.piyushprajpti.pyclock.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -13,11 +12,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-
+    primary = Color(0xFFFFFFFF),
+    secondary = Color(0xFF333333),
+    background = Color(0xFF121212)
 )
 
 private val LightColorScheme = lightColorScheme(
-
+    primary = Color(0xFF000000),
+    secondary = Color(0xFFD9D9D9),
+    background = Color(0xFFFCF9F9)
 )
 
 @Composable
