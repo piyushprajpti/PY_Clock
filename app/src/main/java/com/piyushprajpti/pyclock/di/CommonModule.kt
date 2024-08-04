@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.piyushprajpti.pyclock.data.repository.DataStoreRepository
+import com.piyushprajpti.pyclock.dataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,10 +32,6 @@ object CommonModule {
     @Singleton
     @Provides
     fun providesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            produceFile = { context.preferencesDataStoreFile("datastore") },
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            corruptionHandler = ReplaceFileCorruptionHandler(produceNewData = { emptyPreferences() })
-        )
+        return context.dataStore
     }
 }

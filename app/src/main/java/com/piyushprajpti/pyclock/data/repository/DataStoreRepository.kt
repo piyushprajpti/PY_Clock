@@ -24,4 +24,5 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
             else throw it
         }
     }
+
 }
