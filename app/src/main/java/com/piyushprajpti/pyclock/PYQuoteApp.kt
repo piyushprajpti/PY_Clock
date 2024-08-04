@@ -1,7 +1,11 @@
 package com.piyushprajpti.pyclock
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.foundation.background
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -9,7 +13,7 @@ import com.piyushprajpti.pyclock.presentation.main_feed.MainFeed
 import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
 
 @Composable
-fun PYQuoteApp() {
+fun PYQuoteApp(selectedTheme: Int) {
     val navController = rememberNavController()
 
     NavHost(
@@ -18,7 +22,8 @@ fun PYQuoteApp() {
         enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
         exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
         popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
-        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) }
+        popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
+        modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
         composable(route = Screen.MainFeed.route) {
             MainFeed(onSettingClick = {
@@ -27,9 +32,12 @@ fun PYQuoteApp() {
         }
 
         composable(route = Screen.SettingScreen.route) {
-            SettingScreen(onBackClick = {
-                navController.popBackStack()
-            })
+            SettingScreen(
+                selectedTheme = selectedTheme,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
