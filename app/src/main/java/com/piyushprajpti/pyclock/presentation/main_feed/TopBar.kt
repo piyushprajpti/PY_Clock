@@ -54,6 +54,7 @@ fun TopBar(
                     elevation = 600.dp,
                     spotColor = Color(0x40000000),
                 )
+                .size(50.dp)
 
         ) {
             Icon(
@@ -62,8 +63,8 @@ fun TopBar(
                 tint = Color.Black,
                 modifier = Modifier
                     .background(Color.White, CircleShape)
-                    .size(100.dp)
-                    .padding(7.dp)
+                    .size(46.dp)
+                    .padding(6.dp)
             )
         }
     }
