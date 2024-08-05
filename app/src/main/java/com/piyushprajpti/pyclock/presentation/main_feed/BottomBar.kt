@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BottomBar(
     iconsList: List<IconData>,
-    activeButton: MutableState<Int>,
+    activeButton: Int,
     onClick: (index: Int) -> Unit
 ) {
 
@@ -35,7 +35,7 @@ fun BottomBar(
     ) {
         iconsList.forEachIndexed { index, iconData ->
 
-            val backColor = if (activeButton.value == index) Color.Transparent
+            val backColor = if (activeButton == index) Color.Transparent
             else MaterialTheme.colorScheme.tertiary
 
             IconButton(
