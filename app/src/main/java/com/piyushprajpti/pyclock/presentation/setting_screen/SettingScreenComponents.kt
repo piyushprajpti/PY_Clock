@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,8 @@ fun SettingsTopBar(
 fun Card(
     title: String,
     description: String,
-    icon: ImageVector? = null,
+    imageVector: ImageVector? = null,
+    painterResource: Painter? = null,
     onClick: (() -> Unit)? = null
 ) {
     Row(
@@ -108,12 +110,23 @@ fun Card(
             )
         }
 
-        icon?.let {
+        imageVector?.let {
             Icon(
-                imageVector = icon,
+                imageVector = imageVector,
                 contentDescription = title,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
+            )
+        }
+
+        painterResource?.let {
+            Icon(
+                painter = painterResource,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(end = 6.dp)
+                    .size(26.dp)
             )
         }
     }
