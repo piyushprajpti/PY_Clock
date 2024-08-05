@@ -1,50 +1,54 @@
 package com.piyushprajpti.pyclock.presentation.main_feed
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Alarm
-import androidx.compose.material.icons.outlined.ArrowDropDown
-import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.HourglassTop
 import androidx.compose.material.icons.outlined.Timer
-import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.piyushprajpti.pyclock.presentation.alarm_screen.AlarmScreen
+import com.piyushprajpti.pyclock.presentation.clock_screen.ClockScreen
+import com.piyushprajpti.pyclock.presentation.stopwatch_screen.StopWatchScreen
+import com.piyushprajpti.pyclock.presentation.timer_screen.TimerScreen
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainFeed(
     onSettingClick: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
 
-    val activeButton = remember {
-        mutableStateOf(0)
-    }
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
 
-    val topBarTitle = remember {
-        mutableStateOf("Clock")
-    }
-
-    val tbt = when(activeButton.value) {
-         0 -> "Clock"
-            1 -> "Alarm"
+    val topBarTitle = when (pagerState.currentPage) {
+        0 -> "Clock"
+        1 -> "Alarm"
         2 -> "Stop Watch"
         3 -> "Timer"
         else -> "Other"
     }
 
+    fun onBottomBarIconClick(i: Int) {
+        coroutineScope.launch {
+            pagerState.animateScrollToPage(i)
+        }
+    }
+
     Scaffold(
         topBar = {
-            TopBar(title = tbt, onSettingClick = { onSettingClick() })
+            TopBar(title = topBarTitle, onSettingClick = { onSettingClick() })
         },
 
         bottomBar = {
@@ -68,18 +72,26 @@ fun MainFeed(
                     ),
 
                     ),
-                activeButton = activeButton,
-                onClick = { activeButton.value = it }
+                activeButton = pagerState.currentPage,
+                onClick = { onBottomBarIconClick(it) }
             )
         }
     ) {
-        Column(
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .padding(it)
+                .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(20.dp)
-        ) {
+        ) { page ->
 
+            when (page) {
+                0 -> ClockScreen()
+                1 -> AlarmScreen()
+                2 -> StopWatchScreen()
+                3 -> TimerScreen()
+            }
         }
     }
 }
