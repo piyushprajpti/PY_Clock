@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.piyushprajpti.pyclock.data.repository.DataStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,11 +15,6 @@ import javax.inject.Inject
 class CommonViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
-    fun setValueInPref(key: String, value: String) {
-        viewModelScope.launch {
-            dataStoreRepository.setValue(stringPreferencesKey(key), value)
-        }
-    }
 
     fun setTheme(key: String, value: Int) {
         viewModelScope.launch {
@@ -26,8 +22,12 @@ class CommonViewModel @Inject constructor(
         }
     }
 
-    suspend fun getValueFromPref(key: String): String? {
-        return dataStoreRepository.getValue(stringPreferencesKey(key)).firstOrNull()
+    private fun getTheme(key: String): Flow<Int?> {
+        return dataStoreRepository.getValue(intPreferencesKey(key))
+    }
 
+    suspend fun isAppInDarkTheme(): Int? {
+        val theme = getTheme("selected_theme")
+        return theme.firstOrNull()
     }
 }
