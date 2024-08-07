@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.piyushprajpti.pyclock.presentation.CommonViewModel
 import com.piyushprajpti.pyclock.ui.theme.ClockPrimaryDT
 import com.piyushprajpti.pyclock.ui.theme.ClockPrimaryLT
 import com.piyushprajpti.pyclock.ui.theme.ClockSecondaryDT
@@ -29,10 +27,17 @@ import java.util.Date
 
 @Composable
 fun ClockScreen(
-    commonViewModel: CommonViewModel = hiltViewModel()
+    selectedTheme: Int,
 ) {
 
     val calendar = Calendar.getInstance()
+
+    val isDarkTheme = when (selectedTheme) {
+        1 -> isSystemInDarkTheme()
+        2 -> false
+        else -> true
+    }
+
     val second = remember {
         mutableStateOf(calendar.get(Calendar.SECOND))
     }
@@ -95,9 +100,9 @@ fun ClockScreen(
                 second = second.value,
                 minute = minute.value,
                 hour = hour.value,
-                outerColor = if (isSystemInDarkTheme()) ClockPrimaryDT else ClockPrimaryLT,
-                innerColor = if (isSystemInDarkTheme()) ClockSecondaryDT else ClockSecondaryLT,
-                primaryColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
+                outerColor = if (isDarkTheme) ClockPrimaryDT else ClockPrimaryLT,
+                innerColor = if (isDarkTheme) ClockSecondaryDT else ClockSecondaryLT,
+                primaryColor = if (isDarkTheme) Color.White else Color.Black,
                 modifier = Modifier
                     .fillParentMaxWidth()
                     .fillParentMaxHeight(0.4f)
