@@ -75,7 +75,7 @@ fun SettingScreen(
 
             Card(
                 title = "Current Time Zone",
-                description = "GMT +5:30, Kolkata",
+                description = "UTC +5:30 / India",
             )
 
             Spacer(modifier = Modifier.height(20.dp))
