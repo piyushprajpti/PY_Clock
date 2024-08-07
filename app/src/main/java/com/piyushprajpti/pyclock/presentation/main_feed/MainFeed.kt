@@ -2,6 +2,7 @@ package com.piyushprajpti.pyclock.presentation.main_feed
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -30,6 +31,12 @@ fun MainFeed(
     selectedTheme: Int
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+    val isDarkTheme = when (selectedTheme) {
+        1 -> isSystemInDarkTheme()
+        2 -> false
+        else -> true
+    }
 
     val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
 
@@ -88,9 +95,9 @@ fun MainFeed(
         ) { page ->
 
             when (page) {
-                0 -> ClockScreen(selectedTheme = selectedTheme)
+                0 -> ClockScreen(isDarkTheme = isDarkTheme)
                 1 -> AlarmScreen()
-                2 -> StopWatchScreen()
+                2 -> StopWatchScreen(isDarkTheme = isDarkTheme)
                 3 -> TimerScreen()
             }
         }

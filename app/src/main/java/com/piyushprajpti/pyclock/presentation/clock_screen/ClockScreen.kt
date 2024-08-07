@@ -27,16 +27,10 @@ import java.util.Date
 
 @Composable
 fun ClockScreen(
-    selectedTheme: Int,
+    isDarkTheme: Boolean,
 ) {
 
     val calendar = Calendar.getInstance()
-
-    val isDarkTheme = when (selectedTheme) {
-        1 -> isSystemInDarkTheme()
-        2 -> false
-        else -> true
-    }
 
     val second = remember {
         mutableStateOf(calendar.get(Calendar.SECOND))
