@@ -37,7 +37,7 @@ fun PYQuoteApp(selectedTheme: Int) {
             SettingScreen(
                 selectedTheme = selectedTheme,
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }
             )
         }
