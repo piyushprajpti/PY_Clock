@@ -37,13 +37,13 @@ fun BottomBar(
     ) {
         iconsList.forEachIndexed { index, iconData ->
 
-            val backColor = if (activeButton == index) Color.Transparent
-            else MaterialTheme.colorScheme.tertiary
+            val backColor = if (activeButton == index) MaterialTheme.colorScheme.primary
+            else Color.Transparent
 
                 Icon(
                     imageVector = iconData.icon,
                     contentDescription = iconData.iconName,
-                    tint = Color.Black,
+                    tint = if (activeButton == index) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .background(backColor, CircleShape)
                         .size(55.dp)
