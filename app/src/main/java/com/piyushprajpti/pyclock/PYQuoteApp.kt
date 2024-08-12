@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.piyushprajpti.pyclock.presentation.alarm_screen.EditAlarmScreen
 import com.piyushprajpti.pyclock.presentation.main_feed.MainFeed
 import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
 
@@ -29,6 +30,9 @@ fun PYQuoteApp(selectedTheme: Int) {
                 selectedTheme = selectedTheme,
                 onSettingClick = {
                     navController.navigate(Screen.SettingScreen.route)
+                },
+                onAlarmCardClick = {
+                    navController.navigate(Screen.EditAlarmScreen.route)
                 }
             )
         }
@@ -37,6 +41,14 @@ fun PYQuoteApp(selectedTheme: Int) {
             SettingScreen(
                 selectedTheme = selectedTheme,
                 onBackClick = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(route = Screen.EditAlarmScreen.route) {
+            EditAlarmScreen(
+                redirectToAlarmScreen = {
                     navController.navigateUp()
                 }
             )

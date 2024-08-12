@@ -27,8 +27,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainFeed(
+    selectedTheme: Int,
     onSettingClick: () -> Unit,
-    selectedTheme: Int
+    onAlarmCardClick: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -96,7 +97,7 @@ fun MainFeed(
 
             when (page) {
                 0 -> ClockScreen(isDarkTheme = isDarkTheme)
-                1 -> AlarmScreen()
+                1 -> AlarmScreen(onAlarmCardClick)
                 2 -> StopWatchScreen(isDarkTheme = isDarkTheme)
                 3 -> TimerScreen()
             }
