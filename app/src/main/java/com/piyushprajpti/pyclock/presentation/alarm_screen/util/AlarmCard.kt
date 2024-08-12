@@ -1,4 +1,4 @@
-package com.piyushprajpti.pyclock.presentation.alarm_screen
+package com.piyushprajpti.pyclock.presentation.alarm_screen.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,16 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 
-data class AlarmData(
-    val isOn: Boolean,
-    val time: String,
-    val isAM: Boolean,
-    val date: String,
-)
-
 @Composable
 fun AlarmCard(
-    alarmData: AlarmData
+    alarmData: AlarmData,
+    onClick: () -> Unit
 ) {
     val isChecked = remember {
         mutableStateOf(alarmData.isOn)
@@ -46,7 +40,7 @@ fun AlarmCard(
             .padding(bottom = 20.dp)
             .background(MaterialTheme.colorScheme.secondary, RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
-            .clickable { }
+            .clickable { onClick() }
             .padding(horizontal = 10.dp, vertical = 25.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
