@@ -4,17 +4,24 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.piyushprajpti.pyclock.presentation.alarm_screen.EditAlarmScreen
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.presentation.main_feed.MainFeed
 import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
 
 @Composable
 fun PYQuoteApp(selectedTheme: Int) {
     val navController = rememberNavController()
+
+
+    val alarmList = remember {
+        mutableListOf<AlarmData>()
+    }
 
     NavHost(
         navController = navController,
@@ -33,7 +40,8 @@ fun PYQuoteApp(selectedTheme: Int) {
                 },
                 onAlarmCardClick = {
                     navController.navigate(Screen.EditAlarmScreen.route)
-                }
+                },
+                alarmList = alarmList
             )
         }
 

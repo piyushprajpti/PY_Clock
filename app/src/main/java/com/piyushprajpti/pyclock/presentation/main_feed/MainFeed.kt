@@ -15,10 +15,12 @@ import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.piyushprajpti.pyclock.presentation.alarm_screen.AlarmScreen
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.presentation.clock_screen.ClockScreen
 import com.piyushprajpti.pyclock.presentation.stopwatch_screen.StopWatchScreen
 import com.piyushprajpti.pyclock.presentation.timer_screen.TimerScreen
@@ -30,6 +32,7 @@ fun MainFeed(
     selectedTheme: Int,
     onSettingClick: () -> Unit,
     onAlarmCardClick: () -> Unit,
+    alarmList: MutableList<AlarmData>
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -54,6 +57,8 @@ fun MainFeed(
             pagerState.animateScrollToPage(i)
         }
     }
+
+
 
     Scaffold(
         topBar = {
@@ -97,9 +102,9 @@ fun MainFeed(
 
             when (page) {
                 0 -> ClockScreen(isDarkTheme = isDarkTheme)
-                1 -> AlarmScreen(onAlarmCardClick)
+                1 -> AlarmScreen(onAlarmCardClick, alarmList)
                 2 -> StopWatchScreen(isDarkTheme = isDarkTheme)
-                3 -> TimerScreen()
+                3 -> TimerScreen(isDarkTheme = isDarkTheme)
             }
         }
     }

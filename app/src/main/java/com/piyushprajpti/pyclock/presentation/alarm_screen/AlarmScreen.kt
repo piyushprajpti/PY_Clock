@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,11 +23,21 @@ import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 
 @Composable
-fun AlarmScreen(onAlarmCardClick: () -> Unit) {
+fun AlarmScreen(
+    onAlarmCardClick: () -> Unit,
+    alarmList: MutableList<AlarmData>
+) {
+
+
+    fun onAddAlarmClick() {
+        onAlarmCardClick()
+        alarmList.add(0, AlarmData(true, Triple("09", "30", "AM"), "14 August 2024"))
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(20) {
-                AlarmCard(AlarmData(false, "12:45", true, "12 August"), onClick = onAlarmCardClick)
+            items(alarmList) {
+                AlarmCard(AlarmData(it.isOn, it.time, it.date), onClick = onAlarmCardClick)
             }
         }
 
@@ -41,7 +52,7 @@ fun AlarmScreen(onAlarmCardClick: () -> Unit) {
                 .background(VioletBlue, CircleShape)
                 .clip(CircleShape)
                 .size(60.dp)
-                .clickable { onAlarmCardClick() }
+                .clickable { onAddAlarmClick() }
                 .padding(10.dp)
         )
 

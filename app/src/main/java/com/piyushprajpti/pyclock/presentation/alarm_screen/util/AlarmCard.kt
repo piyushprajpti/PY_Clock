@@ -54,7 +54,7 @@ fun AlarmCard(
 
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = alarmData.time,
+                    text = "${alarmData.time.first}:${alarmData.time.second}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
@@ -62,7 +62,7 @@ fun AlarmCard(
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
-                    text = if (alarmData.isAM) "AM" else "PM",
+                    text = alarmData.time.third,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,

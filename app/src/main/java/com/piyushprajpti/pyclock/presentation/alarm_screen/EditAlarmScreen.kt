@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,32 +29,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.DateSelector
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.FutureSelectableDates
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.TimeSelector
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.dateFormatter
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.timeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("MissingPermission")
 @Composable
 fun EditAlarmScreen(
-    redirectToAlarmScreen: () -> Unit
+    redirectToAlarmScreen: (alarmData: AlarmData) -> Unit
 ) {
+    val tomorrowMillis = System.currentTimeMillis() + 24 * 60 * 60 * 1000
 
     val timePickerState = rememberTimePickerState()
-    val datePickerState = rememberDatePickerState()
 
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = tomorrowMillis,
+        selectableDates = FutureSelectableDates()
+    )
 
     fun onDeleteClick() {
-        redirectToAlarmScreen()
+        redirectToAlarmScreen(
+            AlarmData(
+                true,
+                timeFormatter(timePickerState.hour, timePickerState.minute),
+                dateFormatter(datePickerState.selectedDateMillis)
+            )
+        )
     }
 
     fun onCancelClick() {
-        redirectToAlarmScreen()
+        redirectToAlarmScreen(
+            AlarmData(
+                true,
+                timeFormatter(timePickerState.hour, timePickerState.minute),
+                dateFormatter(datePickerState.selectedDateMillis)
+            )
+        )
     }
 
     fun onSaveClick() {
-        redirectToAlarmScreen()
+        redirectToAlarmScreen(
+            AlarmData(
+                true,
+                timeFormatter(timePickerState.hour, timePickerState.minute),
+                dateFormatter(datePickerState.selectedDateMillis)
+            )
+        )
     }
 
     Scaffold(
@@ -93,7 +121,7 @@ fun EditAlarmScreen(
                         MaterialTheme.colorScheme.secondary,
                         RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                     )
-                    .padding(8.dp),
+                    .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -137,9 +165,33 @@ fun EditAlarmScreen(
                 .padding(20.dp)
         ) {
             item {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Alarm Time",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 24.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
+            }
+
+            item {
                 TimeSelector(
                     timePickerState = timePickerState
                 )
+            }
+
+            item { Spacer(modifier = Modifier.height(30.dp)) }
+
+            item {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Alarm Date",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 24.sp,
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
             }
 
             item {
