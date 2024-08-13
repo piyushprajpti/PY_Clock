@@ -25,6 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,16 +38,21 @@ fun DateSelector(
         mutableStateOf(false)
     }
 
+    val date = remember {
+        mutableStateOf(dateFormatter(datePickerState.selectedDateMillis))
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Tomorrow",
+            text = date.value,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.primary,
-            fontSize = 40.sp,
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold
         )
 
         Icon(imageVector = Icons.Outlined.CalendarMonth,
@@ -79,8 +87,18 @@ fun DateSelector(
                 showDialogBox.value = false
             },
             onOkClick = {
+                date.value = dateFormatter(datePickerState.selectedDateMillis)
                 showDialogBox.value = false
             }
         )
     }
+}
+
+fun dateFormatter(millis: Long?): String {
+    if (millis != null) {
+        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        val dateString = dateFormat.format(Date(millis))
+
+        return dateString
+    } else return ""
 }

@@ -37,7 +37,17 @@ fun TimeSelector(
         mutableStateOf(false)
     }
 
-    val period = if (timePickerState.hour < 12) "AM" else "PM"
+    val hour = remember {
+        mutableStateOf("06")
+    }
+
+    val minute = remember {
+        mutableStateOf("00")
+    }
+
+    val period = remember {
+        mutableStateOf("AM")
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -47,20 +57,20 @@ fun TimeSelector(
 
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
-                text = "${timePickerState.hour}:${timePickerState.minute}",
+                text = "${hour.value}:${minute.value}",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 60.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 4.sp
+                letterSpacing = 3.sp
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = period,
+                text = period.value,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 20.sp,
-                modifier = Modifier.padding(bottom = 7.dp)
+                modifier = Modifier.padding(bottom = 10.dp)
             )
         }
 
@@ -85,8 +95,28 @@ fun TimeSelector(
                 showDialogBox.value = false
             },
             onOkClick = {
+                val temp = timeFormatter(timePickerState.hour, timePickerState.minute)
+                hour.value = temp.first
+                minute.value = temp.second
+                period.value = temp.third
                 showDialogBox.value = false
             }
         )
     }
+}
+
+fun timeFormatter(hour: Int, minute: Int): Triple<String, String, String> {
+    val period = if (hour < 12) "AM" else "PM"
+    val adjustedHour = when {
+        hour == 0 -> "12"
+        hour < 10 -> "0$hour"
+        hour > 19 -> "${hour - 12}"
+        hour > 12 -> "0${hour - 12}"
+        else -> "$hour"
+    }
+    val adjustedMinute = when {
+        minute < 10 -> "0$minute"
+        else -> "$minute"
+    }
+    return Triple(adjustedHour, adjustedMinute, period)
 }
