@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 
 @Composable
 fun SettingsTopBar(
@@ -106,7 +107,7 @@ fun Card(
                 text = description,
                 fontSize = 14.sp,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = VioletBlue
             )
         }
 
