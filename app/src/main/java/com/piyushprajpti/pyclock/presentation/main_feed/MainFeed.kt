@@ -32,7 +32,6 @@ fun MainFeed(
     selectedTheme: Int,
     onSettingClick: () -> Unit,
     onAlarmCardClick: () -> Unit,
-    alarmList: MutableList<AlarmData>
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -102,7 +101,7 @@ fun MainFeed(
 
             when (page) {
                 0 -> ClockScreen(isDarkTheme = isDarkTheme)
-                1 -> AlarmScreen(onAlarmCardClick, alarmList)
+                1 -> AlarmScreen(onAlarmCardClick)
                 2 -> StopWatchScreen(isDarkTheme = isDarkTheme)
                 3 -> TimerScreen(isDarkTheme = isDarkTheme)
             }

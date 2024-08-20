@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -18,27 +17,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmCard
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 
 @Composable
 fun AlarmScreen(
     onAlarmCardClick: () -> Unit,
-    alarmList: MutableList<AlarmData>
 ) {
 
 
     fun onAddAlarmClick() {
         onAlarmCardClick()
-        alarmList.add(0, AlarmData(true, Triple("09", "30", "AM"), "14 August 2024"))
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(alarmList) {
-                AlarmCard(AlarmData(it.isOn, it.time, it.date), onClick = onAlarmCardClick)
-            }
+
         }
 
         // add alarm FAB

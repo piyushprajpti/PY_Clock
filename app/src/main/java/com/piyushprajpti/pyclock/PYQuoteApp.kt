@@ -18,11 +18,6 @@ import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
 fun PYQuoteApp(selectedTheme: Int) {
     val navController = rememberNavController()
 
-
-    val alarmList = remember {
-        mutableListOf<AlarmData>()
-    }
-
     NavHost(
         navController = navController,
         startDestination = Screen.MainFeed.route,
@@ -40,8 +35,7 @@ fun PYQuoteApp(selectedTheme: Int) {
                 },
                 onAlarmCardClick = {
                     navController.navigate(Screen.EditAlarmScreen.route)
-                },
-                alarmList = alarmList
+                }
             )
         }
 
