@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.1"
+agp = "8.5.2"
 datastorePreferences = "1.1.1"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
@@ -8,13 +8,15 @@ junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.4"
 activityCompose = "1.9.1"
-composeBom = "2024.06.00"
+composeBom = "2024.08.00"
 materialIconsExtended = "1.6.8"
 navigationCompose = "2.7.7"
 hiltNavigationCompose = "1.2.0"
 hiltAndroid = "2.51.1"
 ksp = "2.0.0-1.0.23"
 daggerHilt = "2.51.1"
+roomRuntime = "2.6.1"
+
 
 
 [libraries]
@@ -39,6 +41,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
