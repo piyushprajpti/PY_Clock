@@ -9,3 +9,4 @@ val ClockSecondaryLT = Color(0xFFE0E0E0)
 val ClockSecondaryDT = Color(0xFF424242)
 
 val VioletBlue = Color(0xFF3b7eb8)
+val ErrorRed = Color(0xFFE3242B)

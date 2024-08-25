@@ -17,18 +17,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.piyushprajpti.pyclock.ui.theme.ClockSecondaryDT
-import com.piyushprajpti.pyclock.ui.theme.ClockSecondaryLT
+import com.piyushprajpti.pyclock.ui.theme.ErrorRed
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 import com.piyushprajpti.pyclock.util.ActionButton
 import com.piyushprajpti.pyclock.util.CircularProgressCanvas
@@ -40,43 +41,43 @@ fun StopWatchScreen(
     isDarkTheme: Boolean
 ) {
 
-    val isStarted = remember { mutableStateOf(false) }
+    var isStarted by remember { mutableStateOf(false) }
 
-    val shouldReset = remember { mutableStateOf(false) }
+    var shouldReset by remember { mutableStateOf(false) }
 
-    val elapsedTimeText = remember { mutableStateOf("00:00:00") }
+    var elapsedTimeText by remember { mutableStateOf("00:00:00") }
 
-    val isProgressBarActive = remember { mutableStateOf(false) }
+    var isProgressBarActive by remember { mutableStateOf(false) }
 
-    val progress = remember { mutableFloatStateOf(0f) }
+    var progress by remember { mutableFloatStateOf(0f) }
 
     val durationMillis = 60 * 1000L
 
-    val startTime = remember { mutableStateOf(0L) }
-    val elapsedMillis = remember { mutableStateOf(0L) }
-    val totalElapsedMillis = remember { mutableStateOf(0L) }
+    var startTime by remember { mutableStateOf(0L) }
+    var elapsedMillis by remember { mutableStateOf(0L) }
+    var totalElapsedMillis by remember { mutableStateOf(0L) }
 
 
-    LaunchedEffect(isProgressBarActive.value) {
-        if (isProgressBarActive.value) {
-            startTime.value = System.currentTimeMillis()
+    LaunchedEffect(isProgressBarActive) {
+        if (isProgressBarActive) {
+            startTime = System.currentTimeMillis()
         }
-        while (isProgressBarActive.value) {
+        while (isProgressBarActive) {
             val currentTime = System.currentTimeMillis()
-            val newElapsedMillis = elapsedMillis.value + (currentTime - startTime.value)
-            startTime.value = currentTime
+            val newElapsedMillis = elapsedMillis + (currentTime - startTime)
+            startTime = currentTime
 
             if (newElapsedMillis >= durationMillis) {
-                elapsedMillis.value = 0L
-                progress.floatValue = 0f
-                totalElapsedMillis.value += durationMillis
+                elapsedMillis = 0L
+                progress = 0f
+                totalElapsedMillis += durationMillis
             } else {
-                elapsedMillis.value = newElapsedMillis
-                progress.floatValue = (newElapsedMillis.toFloat() / durationMillis).coerceIn(0f, 1f)
+                elapsedMillis = newElapsedMillis
+                progress = (newElapsedMillis.toFloat() / durationMillis).coerceIn(0f, 1f)
             }
 
-            elapsedTimeText.value =
-                formatElapsedTime(totalElapsedMillis.value + elapsedMillis.value)
+            elapsedTimeText =
+                formatElapsedTime(totalElapsedMillis + elapsedMillis)
             delay(33L)
 
         }
@@ -92,41 +93,41 @@ fun StopWatchScreen(
         mutableStateOf(listOf<LapData>())
     }
 
-    val lapCount = remember {
+    var lapCount by remember {
         mutableIntStateOf(1)
     }
 
-    val previousLapTime = remember {
+    var previousLapTime by remember {
         mutableLongStateOf(0L)
     }
 
     fun onResetClick() {
-        progress.floatValue = 0f
-        isStarted.value = false
-        shouldReset.value = false
-        elapsedMillis.value = 0L
-        totalElapsedMillis.value = 0L
-        elapsedTimeText.value = "00:00:00"
+        progress = 0f
+        isStarted = false
+        shouldReset = false
+        elapsedMillis = 0L
+        totalElapsedMillis = 0L
+        elapsedTimeText = "00:00:00"
         lapsList.value = listOf()
-        lapCount.intValue = 1
-        previousLapTime.longValue = 0L
+        lapCount = 1
+        previousLapTime = 0L
     }
 
     fun onLapClick() {
-        val newTotalTime = totalElapsedMillis.value + elapsedMillis.value
-        val newLapTime = if (previousLapTime.longValue == 0L) {
+        val newTotalTime = totalElapsedMillis + elapsedMillis
+        val newLapTime = if (previousLapTime == 0L) {
             newTotalTime
         } else {
-            newTotalTime - previousLapTime.longValue
+            newTotalTime - previousLapTime
         }
-        previousLapTime.longValue = newTotalTime
+        previousLapTime = newTotalTime
         val newLap = LapData(
-            lapCount.intValue,
+            lapCount,
             formatElapsedTime(newLapTime),
             formatElapsedTime(newTotalTime)
         )
         lapsList.value += newLap
-        lapCount.intValue += 1
+        lapCount += 1
     }
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
@@ -143,15 +144,14 @@ fun StopWatchScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressCanvas(
+                    isDarkTheme = isDarkTheme,
                     modifier = Modifier
                         .fillMaxSize(),
-                    circumferenceColor = if (isDarkTheme) ClockSecondaryDT else ClockSecondaryLT,
-                    centerColor = MaterialTheme.colorScheme.background,
-                    progress = progress.floatValue
+                    progress = progress
                 )
 
                 Text(
-                    text = elapsedTimeText.value,
+                    text = elapsedTimeText,
                     fontSize = 32.sp,
                     letterSpacing = 3.sp,
                     color = MaterialTheme.colorScheme.primary,
@@ -161,7 +161,7 @@ fun StopWatchScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (lapCount.intValue > 1) {
+            if (lapCount > 1) {
                 LapSectionHeader()
 
                 LazyColumn(
@@ -187,13 +187,13 @@ fun StopWatchScreen(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isStarted.value) {
+            if (isStarted) {
                 ActionButton(
-                    title = if (shouldReset.value) "Reset" else "Lap",
+                    title = if (shouldReset) "Reset" else "Lap",
                     titleColor = MaterialTheme.colorScheme.primary,
                     backColor = MaterialTheme.colorScheme.secondary,
                     onClick = {
-                        if (shouldReset.value) {
+                        if (shouldReset) {
                             onResetClick()
                         } else {
                             onLapClick()
@@ -202,18 +202,18 @@ fun StopWatchScreen(
                 )
 
                 ActionButton(
-                    title = if (shouldReset.value) "Resume" else "Pause",
+                    title = if (shouldReset) "Resume" else "Pause",
                     titleColor = Color.White,
-                    backColor = if (shouldReset.value) VioletBlue else Color.Red,
+                    backColor = if (shouldReset) VioletBlue else ErrorRed,
                     onClick = {
-                        isProgressBarActive.value = shouldReset.value
-                        shouldReset.value = !shouldReset.value
+                        isProgressBarActive = shouldReset
+                        shouldReset = !shouldReset
                     }
                 )
             } else {
                 PlayButton {
-                    isStarted.value = true
-                    isProgressBarActive.value = true
+                    isStarted = true
+                    isProgressBarActive = true
                 }
             }
         }

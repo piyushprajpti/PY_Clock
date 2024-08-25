@@ -1,6 +1,7 @@
 package com.piyushprajpti.pyclock.util
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -9,15 +10,19 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import com.piyushprajpti.pyclock.ui.theme.ClockSecondaryDT
+import com.piyushprajpti.pyclock.ui.theme.ClockSecondaryLT
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 
 @Composable
 fun CircularProgressCanvas(
+    isDarkTheme: Boolean,
     modifier: Modifier,
-    circumferenceColor: Color,
-    centerColor: Color,
     progress: Float
 ) {
+    val circumferenceColor = if (isDarkTheme) ClockSecondaryDT else ClockSecondaryLT
+    val centerColor = MaterialTheme.colorScheme.background
+
     Canvas(modifier = modifier) {
         val canvasWidth = size.width
         val canvasHeight = size.height
