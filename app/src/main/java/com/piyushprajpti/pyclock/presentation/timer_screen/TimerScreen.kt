@@ -1,5 +1,6 @@
 package com.piyushprajpti.pyclock.presentation.timer_screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +58,17 @@ fun TimerScreen(isDarkTheme: Boolean) {
     val progress = remember { Animatable(1f) }
 
     var totalMillis by remember { mutableLongStateOf(0L) }
+    var remainingTime by remember { mutableStateOf("") }
+
+    if (isStarted) {
+        LaunchedEffect(progress.value) {
+            val remainingMillis = (progress.value * totalMillis).toLong()
+            val hours = (remainingMillis / 3600000).toInt()
+            val minutes = ((remainingMillis % 3600000) / 60000).toInt()
+            val seconds = ((remainingMillis % 60000) / 1000).toInt()
+            remainingTime = "%02d:%02d:%02d".format(hours, minutes, seconds)
+        }
+    }
 
     fun onPlayClick() {
 
@@ -65,7 +78,12 @@ fun TimerScreen(isDarkTheme: Boolean) {
             Toast.makeText(context, "Second input range is 0 to 59", Toast.LENGTH_SHORT).show()
         } else {
             isStarted = true
-            totalMillis = hour.toInt() * 3600 + minute.toInt() * 60 + second.toInt() * 1000L
+            totalMillis =
+                (hour.toInt() * 3600 + minute.toInt() * 60 + second.toInt()).toLong() * 1000L
+            Log.d(
+                "TAG",
+                "onPlayClick: ${hour.toInt()}, ${minute.toInt()}, ${second.toInt()}, $totalMillis"
+            )
 
             coroutineScope.launch {
                 progress.snapTo(1f)
@@ -90,6 +108,7 @@ fun TimerScreen(isDarkTheme: Boolean) {
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = remainingMillis, easing = LinearEasing)
                 )
+                isStarted = false
             }
         } else {
             coroutineScope.launch {
@@ -121,7 +140,7 @@ fun TimerScreen(isDarkTheme: Boolean) {
                     )
 
                     Text(
-                        text = "",
+                        text = remainingTime,
                         fontSize = 32.sp,
                         letterSpacing = 3.sp,
                         color = MaterialTheme.colorScheme.primary,
