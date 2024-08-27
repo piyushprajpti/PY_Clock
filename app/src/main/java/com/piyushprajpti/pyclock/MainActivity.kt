@@ -78,7 +78,6 @@ class MainActivity : ComponentActivity() {
                 } else mutableStateOf(true)
             }
 
-
             val permissionLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = { isGranted ->

@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.map
 
 class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
-    suspend fun <T> setValue(ket: Preferences.Key<T>, value: T) {
+    suspend fun <T> setValue(key: Preferences.Key<T>, value: T) {
         dataStore.edit {
-            it[ket] = value
+            it[key] = value
         }
     }
 

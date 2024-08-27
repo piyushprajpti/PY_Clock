@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.piyushprajpti.pyclock.domain.repository.CommonViewModel
 import com.piyushprajpti.pyclock.ui.theme.ErrorRed
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 import com.piyushprajpti.pyclock.util.ActionButton
@@ -40,7 +42,10 @@ import com.piyushprajpti.pyclock.util.PlayButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun TimerScreen(isDarkTheme: Boolean) {
+fun TimerScreen(
+    isDarkTheme: Boolean,
+    commonViewModel: CommonViewModel = hiltViewModel()
+) {
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -51,9 +56,9 @@ fun TimerScreen(isDarkTheme: Boolean) {
 
     var hour by remember { mutableStateOf("00") }
 
-    var minute by remember { mutableStateOf("00") }
+    var minute by remember { mutableStateOf("05") }
 
-    var second by remember { mutableStateOf("30") }
+    var second by remember { mutableStateOf("00") }
 
     val progress = remember { Animatable(1f) }
 
@@ -94,6 +99,7 @@ fun TimerScreen(isDarkTheme: Boolean) {
                         easing = LinearEasing
                     )
                 )
+                commonViewModel.sendTimerNotification("$hour:$minute:$second", context)
                 isStarted = false
             }
         }
@@ -108,6 +114,7 @@ fun TimerScreen(isDarkTheme: Boolean) {
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = remainingMillis, easing = LinearEasing)
                 )
+                commonViewModel.sendTimerNotification("$hour:$minute:$second", context)
                 isStarted = false
             }
         } else {

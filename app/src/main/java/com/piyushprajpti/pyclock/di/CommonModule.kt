@@ -1,6 +1,11 @@
 package com.piyushprajpti.pyclock.di
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.RingtoneManager
+import android.os.Build
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -33,5 +38,28 @@ object CommonModule {
     @Provides
     fun providesDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
         return context.dataStore
+    }
+
+    @Singleton
+    @Provides
+    fun providesNotificationManager(@ApplicationContext context: Context): NotificationManager {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "id",
+                "Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                enableVibration(true)
+                enableLights(true)
+                setSound(
+                    RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM),
+                    AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
+                )
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+        return notificationManager
     }
 }
