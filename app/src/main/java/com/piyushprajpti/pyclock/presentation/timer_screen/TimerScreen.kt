@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,60 +33,78 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.piyushprajpti.pyclock.domain.repository.CommonViewModel
+import com.piyushprajpti.pyclock.service.timer.TimerService
+import com.piyushprajpti.pyclock.service.timer.TimerServiceIntents
+import com.piyushprajpti.pyclock.service.timer.TimerState
 import com.piyushprajpti.pyclock.ui.theme.ErrorRed
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 import com.piyushprajpti.pyclock.util.ActionButton
 import com.piyushprajpti.pyclock.util.CircularProgressCanvas
+import com.piyushprajpti.pyclock.util.Constants
 import com.piyushprajpti.pyclock.util.PlayButton
 import kotlinx.coroutines.launch
 
 @Composable
 fun TimerScreen(
     isDarkTheme: Boolean,
+    timerService: TimerService,
     commonViewModel: CommonViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
+    val hours by timerService.hours
+    val minutes by timerService.minutes
+    val seconds by timerService.seconds
+    val currentState by timerService.currentState
+
     val coroutineScope = rememberCoroutineScope()
 
     var isStarted by remember { mutableStateOf(false) }
 
     var isPaused by remember { mutableStateOf(false) }
 
-    var hour by remember { mutableStateOf("00") }
+    var inputHours by remember { mutableStateOf("00") }
 
-    var minute by remember { mutableStateOf("00") }
+    var inputMinutes by remember { mutableStateOf("00") }
 
-    var second by remember { mutableStateOf("30") }
+    var inputSeconds by remember { mutableStateOf("30") }
 
     val progress = remember { Animatable(1f) }
 
     var totalMillis by remember { mutableLongStateOf(0L) }
     var remainingTime by remember { mutableStateOf("") }
 
-    if (isStarted) {
-        LaunchedEffect(progress.value) {
-            val remainingMillis = (progress.value * totalMillis).toLong()
-            val hours = (remainingMillis / 3600000).toInt()
-            val minutes = ((remainingMillis % 3600000) / 60000).toInt()
-            val seconds = ((remainingMillis % 60000) / 1000).toInt()
-            remainingTime = "%02d:%02d:%02d".format(hours, minutes, seconds)
-        }
-    }
+//    if (isStarted) {
+//        LaunchedEffect(progress.value) {
+//            val remainingMillis = (progress.value * totalMillis).toLong()
+//            val hours = (remainingMillis / 3600000).toInt()
+//            val minutes = ((remainingMillis % 3600000) / 60000).toInt()
+//            val seconds = ((remainingMillis % 60000) / 1000).toInt()
+//            remainingTime = "%02d:%02d:%02d".format(hours, minutes, seconds)
+//        }
+//    }
 
     fun onPlayClick() {
 
-        if (minute.toInt() >= 60) {
+        TimerServiceIntents.triggerForegroundService(
+            context = context,
+            action = Constants.ACTION_SERVICE_START,
+            hours = inputHours,
+            minutes = inputMinutes,
+            seconds = inputSeconds
+        )
+
+        if (inputMinutes.toInt() >= 60) {
             Toast.makeText(context, "Minute input range is 0 to 59", Toast.LENGTH_SHORT).show()
-        } else if (second.toInt() >= 60) {
+        } else if (inputSeconds.toInt() >= 60) {
             Toast.makeText(context, "Second input range is 0 to 59", Toast.LENGTH_SHORT).show()
         } else {
             isStarted = true
             totalMillis =
-                (hour.toInt() * 3600 + minute.toInt() * 60 + second.toInt()).toLong() * 1000L
+                (inputHours.toInt() * 3600 + inputMinutes.toInt() * 60 + inputSeconds.toInt()).toLong() * 1000L
             Log.d(
                 "TAG",
-                "onPlayClick: ${hour.toInt()}, ${minute.toInt()}, ${second.toInt()}, $totalMillis"
+                "onPlayClick: ${inputHours.toInt()}, ${inputMinutes.toInt()}, ${inputSeconds.toInt()}, $totalMillis"
             )
 
             coroutineScope.launch {
@@ -99,13 +116,21 @@ fun TimerScreen(
                         easing = LinearEasing
                     )
                 )
-                commonViewModel.sendTimerNotification("$hour:$minute:$second", context)
+//                commonViewModel.sendTimerNotification(
+//                    "$inputHours:$inputMinutes:$inputSeconds",
+//                    context
+//                )
                 isStarted = false
             }
         }
     }
 
     fun onPauseClick() {
+
+        TimerServiceIntents.triggerForegroundService(
+            context = context,
+            action = if (currentState == TimerState.Started) Constants.ACTION_SERVICE_STOP else Constants.ACTION_SERVICE_START
+        )
 
         if (isPaused) {
             val remainingMillis = (progress.value * totalMillis).toInt()
@@ -114,7 +139,10 @@ fun TimerScreen(
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = remainingMillis, easing = LinearEasing)
                 )
-                commonViewModel.sendTimerNotification("$hour:$minute:$second", context)
+//                commonViewModel.sendTimerNotification(
+//                    "$inputHours:$inputMinutes:$inputSeconds",
+//                    context
+//                )
                 isStarted = false
             }
         } else {
@@ -123,6 +151,15 @@ fun TimerScreen(
             }
         }
         isPaused = !isPaused
+    }
+
+    fun onDeleteClick() {
+        isStarted = false
+        isPaused = false
+        TimerServiceIntents.triggerForegroundService(
+            context = context,
+            action = Constants.ACTION_SERVICE_CANCEL
+        )
     }
 
     Column(
@@ -147,7 +184,7 @@ fun TimerScreen(
                     )
 
                     Text(
-                        text = remainingTime,
+                        text = "$hours:$minutes:$seconds",
                         fontSize = 32.sp,
                         letterSpacing = 3.sp,
                         color = MaterialTheme.colorScheme.primary,
@@ -173,20 +210,20 @@ fun TimerScreen(
                     ) {
                         NumberInputField(
                             label = "HH",
-                            value = hour,
-                            onValueChange = { hour = it }
+                            value = inputHours,
+                            onValueChange = { inputHours = it }
                         )
 
                         NumberInputField(
                             label = "MM",
-                            value = minute,
-                            onValueChange = { minute = it }
+                            value = inputMinutes,
+                            onValueChange = { inputMinutes = it }
                         )
 
                         NumberInputField(
                             label = "SS",
-                            value = second,
-                            onValueChange = { second = it }
+                            value = inputSeconds,
+                            onValueChange = { inputSeconds = it }
                         )
                     }
                 }
@@ -198,18 +235,18 @@ fun TimerScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         TimeBubble(time = "00:02:00") {
-                            minute = "02"
-                            second = "00"
+                            inputMinutes = "02"
+                            inputSeconds = "00"
                             onPlayClick()
                         }
                         TimeBubble(time = "00:05:00") {
-                            minute = "05"
-                            second = "00"
+                            inputMinutes = "05"
+                            inputSeconds = "00"
                             onPlayClick()
                         }
                         TimeBubble(time = "00:10:00") {
-                            minute = "10"
-                            second = "00"
+                            inputMinutes = "10"
+                            inputSeconds = "00"
                             onPlayClick()
                         }
                     }
@@ -232,10 +269,7 @@ fun TimerScreen(
                     title = "Delete",
                     titleColor = MaterialTheme.colorScheme.primary,
                     backColor = MaterialTheme.colorScheme.secondary,
-                    onClick = {
-                        isStarted = false
-                        isPaused = false
-                    }
+                    onClick = {onDeleteClick()}
                 )
 
                 ActionButton(

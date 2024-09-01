@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -29,6 +30,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.piyushprajpti.pyclock.data.repository.DataStoreRepository
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
+import com.piyushprajpti.pyclock.service.timer.TimerService
 import com.piyushprajpti.pyclock.ui.theme.PY_ClockTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.firstOrNull
@@ -39,24 +41,44 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore("preferenc
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private var isBound by mutableStateOf(false)
+    private var isStopwatchBound by mutableStateOf(false)
+    private var isTimerBound by mutableStateOf(false)
+
     private lateinit var stopWatchService: StopWatchService
-    private val connection = object : ServiceConnection {
+    private lateinit var timerService: TimerService
+
+    private val stopwatchConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as StopWatchService.StopwatchBinder
             stopWatchService = binder.getService()
-            isBound = true
+            isStopwatchBound = true
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            isBound = false
+            isStopwatchBound = false
+        }
+    }
+
+    private val timerConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as TimerService.TimerBinder
+            timerService = binder.getService()
+            isTimerBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isTimerBound = false
         }
     }
 
     override fun onStart() {
         super.onStart()
         Intent(this, StopWatchService::class.java).also { intent ->
-            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            bindService(intent, stopwatchConnection, Context.BIND_AUTO_CREATE)
+        }
+
+        Intent(this, TimerService::class.java).also { intent ->
+            bindService(intent, timerConnection, Context.BIND_AUTO_CREATE)
         }
     }
 
@@ -119,10 +141,12 @@ class MainActivity : ComponentActivity() {
             }
 
             PY_ClockTheme(darkTheme = isDarkTheme) {
-                if (isBound) {
+                Log.d("TAG", "onCreate: $isStopwatchBound, $isTimerBound")
+                if (isStopwatchBound && isTimerBound) {
                     PYQuoteApp(
                         selectedTheme = selectedTheme.value,
-                        stopWatchService = stopWatchService
+                        stopWatchService = stopWatchService,
+                        timerService = timerService
                     )
                 }
             }
@@ -131,7 +155,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        unbindService(connection)
-        isBound = false
+        unbindService(stopwatchConnection)
+        isStopwatchBound = false
     }
 }

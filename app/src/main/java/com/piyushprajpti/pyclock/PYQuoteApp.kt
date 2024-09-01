@@ -12,11 +12,13 @@ import com.piyushprajpti.pyclock.presentation.alarm_screen.EditAlarmScreen
 import com.piyushprajpti.pyclock.presentation.main_feed.MainFeed
 import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
+import com.piyushprajpti.pyclock.service.timer.TimerService
 
 @Composable
 fun PYQuoteApp(
     selectedTheme: Int,
-    stopWatchService: StopWatchService
+    stopWatchService: StopWatchService,
+    timerService: TimerService
 ) {
     val navController = rememberNavController()
 
@@ -33,6 +35,7 @@ fun PYQuoteApp(
             MainFeed(
                 selectedTheme = selectedTheme,
                 stopWatchService = stopWatchService,
+                timerService = timerService,
                 onSettingClick = {
                     navController.navigate(Screen.SettingScreen.route)
                 },

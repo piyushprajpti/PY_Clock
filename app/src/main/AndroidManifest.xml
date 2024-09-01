@@ -34,6 +34,11 @@
             android:foregroundServiceType="shortService"
             android:enabled="true"
             android:exported="false" />
+
+        <service android:name=".service.timer.TimerService"
+            android:foregroundServiceType="shortService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -24,6 +24,8 @@ import com.piyushprajpti.pyclock.presentation.stopwatch_screen.StopWatchScreen
 import com.piyushprajpti.pyclock.presentation.timer_screen.TimerScreen
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
 import com.piyushprajpti.pyclock.service.stopwatch.StopwatchState
+import com.piyushprajpti.pyclock.service.timer.TimerService
+import com.piyushprajpti.pyclock.service.timer.TimerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -31,6 +33,7 @@ import kotlinx.coroutines.launch
 fun MainFeed(
     selectedTheme: Int,
     stopWatchService: StopWatchService,
+    timerService: TimerService,
     onSettingClick: () -> Unit,
     onAlarmCardClick: () -> Unit,
 ) {
@@ -42,7 +45,15 @@ fun MainFeed(
         else -> true
     }
 
-    val initialPage = if (stopWatchService.currentState.value == StopwatchState.Started || stopWatchService.currentState.value == StopwatchState.Paused) 2 else 0
+    val stopwatchCondition =
+        stopWatchService.currentState.value == StopwatchState.Started || stopWatchService.currentState.value == StopwatchState.Paused
+    val timerCondition =
+        timerService.currentState.value == TimerState.Started || timerService.currentState.value == TimerState.Paused
+
+    val initialPage =
+        if (stopwatchCondition) 2
+        else if (timerCondition) 3
+        else 0
 
     val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 4 })
 
@@ -106,7 +117,7 @@ fun MainFeed(
                 0 -> ClockScreen(isDarkTheme = isDarkTheme)
                 1 -> AlarmScreen(onAlarmCardClick)
                 2 -> StopWatchScreen(isDarkTheme = isDarkTheme, stopWatchService = stopWatchService)
-                3 -> TimerScreen(isDarkTheme = isDarkTheme)
+                3 -> TimerScreen(isDarkTheme = isDarkTheme, timerService = timerService)
             }
         }
     }
