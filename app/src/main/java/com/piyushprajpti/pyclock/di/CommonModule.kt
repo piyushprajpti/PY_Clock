@@ -4,6 +4,11 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import com.piyushprajpti.pyclock.data.local_storage.stopwatch.LapDao
+import com.piyushprajpti.pyclock.data.local_storage.stopwatch.LapData
 import com.piyushprajpti.pyclock.data.repository.DataStoreRepository
 import com.piyushprajpti.pyclock.dataStore
 import dagger.Module
@@ -33,5 +38,16 @@ object CommonModule {
     @Provides
     fun providesNotificationManager(@ApplicationContext context: Context): NotificationManager {
         return context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    }
+
+    @Database(entities = [LapData::class], version = 1)
+    abstract class PYClockDatabase : RoomDatabase() {
+        abstract fun lapDao(): LapDao
+    }
+
+    @Singleton
+    @Provides
+    fun providesDatabase(@ApplicationContext context: Context): PYClockDatabase {
+        return Room.databaseBuilder(context, PYClockDatabase::class.java, "py_clock").build()
     }
 }

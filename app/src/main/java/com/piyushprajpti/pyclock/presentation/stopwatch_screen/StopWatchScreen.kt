@@ -1,5 +1,6 @@
 package com.piyushprajpti.pyclock.presentation.stopwatch_screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.piyushprajpti.pyclock.data.local_storage.stopwatch.LapData
+import com.piyushprajpti.pyclock.presentation.CommonViewModel
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchServiceIntents
 import com.piyushprajpti.pyclock.service.stopwatch.StopwatchState
@@ -44,7 +48,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun StopWatchScreen(
     isDarkTheme: Boolean,
-    stopWatchService: StopWatchService
+    stopWatchService: StopWatchService,
+    commonViewModel: CommonViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val hours by stopWatchService.hours
@@ -71,11 +76,29 @@ fun StopWatchScreen(
     }
 
     var lapCount by remember {
-        mutableIntStateOf(1)
+        mutableIntStateOf(0)
     }
 
     var previousLapTime by remember {
         mutableLongStateOf(0L)
+    }
+
+    LaunchedEffect(Unit) {
+        if (currentState == StopwatchState.Idle) {
+            commonViewModel.clearLapData()
+        } else {
+            val lapListFromVM = commonViewModel.getLapList()
+            lapsList.value = lapListFromVM
+            lapCount = if (lapListFromVM.isNotEmpty()) lapListFromVM.size else 0
+            if (lapListFromVM.isNotEmpty()) {
+                val lastLap = lapListFromVM.last()
+                previousLapTime = parseTimeToMillis(lastLap.totalTime)
+            }
+        }
+    }
+
+    LaunchedEffect(lapsList.value) {
+        commonViewModel.addLap(lapsList.value)
     }
 
     LaunchedEffect(isProgressBarActive) {
@@ -96,7 +119,7 @@ fun StopWatchScreen(
         isStarted = false
         shouldReset = false
         lapsList.value = listOf()
-        lapCount = 1
+        lapCount = 0
         previousLapTime = 0L
 
         StopWatchServiceIntents.triggerForegroundService(
@@ -105,9 +128,15 @@ fun StopWatchScreen(
     }
 
     fun onLapClick() {
+        lapCount += 1
         val currentElapsedMillis =
-            hours.toLong() * 3600000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L
-        val newLapTime = currentElapsedMillis - previousLapTime
+            hours.toLong() * 3600000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L - 3L
+
+        Log.d("TAG", "onLapClick: ${hours.toLong()}, ${hours.toInt()}")
+        Log.d("TAG", "onLapClick: ${minutes.toLong()}, ${minutes.toInt()}")
+        Log.d("TAG", "onLapClick: ${seconds.toLong()}, ${seconds.toInt()}")
+
+        val newLapTime = currentElapsedMillis - previousLapTime - 1L
         previousLapTime = currentElapsedMillis
 
         val newLap = LapData(
@@ -116,12 +145,15 @@ fun StopWatchScreen(
             formatElapsedTime(currentElapsedMillis)
         )
         lapsList.value += newLap
-        lapCount += 1
+
     }
 
 
     LaunchedEffect(currentState) {
-        if (currentState == StopwatchState.Idle) onResetClick()
+        if (currentState == StopwatchState.Idle) {
+            onResetClick()
+            commonViewModel.clearLapData()
+        }
         shouldReset = if (currentState == StopwatchState.Paused) true else false
         isProgressBarActive = if (currentState == StopwatchState.Started) true else false
     }
@@ -157,7 +189,7 @@ fun StopWatchScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (lapCount > 1) {
+            if (lapCount > 0) {
                 LapSectionHeader()
 
                 LazyColumn(

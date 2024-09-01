@@ -13,13 +13,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
-data class LapData(
-    val lapCount: Int,
-    val lapTime: String,
-    val totalTime: String
-)
-
 fun formatElapsedTime(elapsedMillis: Long): String {
     val totalSeconds = (elapsedMillis + 1000) / 1000
     val hours = totalSeconds / 3600
@@ -27,6 +20,16 @@ fun formatElapsedTime(elapsedMillis: Long): String {
     val seconds = totalSeconds % 60
     return "%02d:%02d:%02d".format(hours, minutes, seconds)
 }
+
+fun parseTimeToMillis(time: String): Long {
+    val parts = time.split(":").map { it.toLong() }
+    val hoursInMillis = parts[0] * 3600000L
+    val minutesInMillis = parts[1] * 60000L
+    val secondsInMillis = parts[2] * 1000L
+
+    return hoursInMillis + minutesInMillis + secondsInMillis
+}
+
 
 @Composable
 fun LapSectionHeader() {
