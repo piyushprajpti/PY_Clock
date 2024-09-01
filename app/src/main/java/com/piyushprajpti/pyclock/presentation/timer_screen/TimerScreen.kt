@@ -56,9 +56,9 @@ fun TimerScreen(
 
     var hour by remember { mutableStateOf("00") }
 
-    var minute by remember { mutableStateOf("05") }
+    var minute by remember { mutableStateOf("00") }
 
-    var second by remember { mutableStateOf("00") }
+    var second by remember { mutableStateOf("30") }
 
     val progress = remember { Animatable(1f) }
 
@@ -159,33 +159,62 @@ fun TimerScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .weight(1f)
+                    .weight(1f),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
 
-                Spacer(modifier = Modifier.height(50.dp))
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.height(30.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    NumberInputField(
-                        label = "HH",
-                        value = hour,
-                        onValueChange = { hour = it }
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        NumberInputField(
+                            label = "HH",
+                            value = hour,
+                            onValueChange = { hour = it }
+                        )
 
-                    NumberInputField(
-                        label = "MM",
-                        value = minute,
-                        onValueChange = { minute = it }
-                    )
+                        NumberInputField(
+                            label = "MM",
+                            value = minute,
+                            onValueChange = { minute = it }
+                        )
 
-                    NumberInputField(
-                        label = "SS",
-                        value = second,
-                        onValueChange = { second = it }
-                    )
+                        NumberInputField(
+                            label = "SS",
+                            value = second,
+                            onValueChange = { second = it }
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TimeBubble(time = "00:02:00") {
+                            minute = "02"
+                            second = "00"
+                            onPlayClick()
+                        }
+                        TimeBubble(time = "00:05:00") {
+                            minute = "05"
+                            second = "00"
+                            onPlayClick()
+                        }
+                        TimeBubble(time = "00:10:00") {
+                            minute = "10"
+                            second = "00"
+                            onPlayClick()
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(50.dp))
                 }
             }
         }
