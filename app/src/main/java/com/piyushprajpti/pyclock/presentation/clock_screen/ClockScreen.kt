@@ -1,6 +1,8 @@
 package com.piyushprajpti.pyclock.presentation.clock_screen
 
+import android.content.res.Configuration
 import android.icu.util.Calendar
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +32,6 @@ import java.util.Date
 fun ClockScreen(
     isDarkTheme: Boolean,
 ) {
-
     val calendar = Calendar.getInstance()
 
     val second = remember {

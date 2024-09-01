@@ -1,11 +1,14 @@
 package com.piyushprajpti.pyclock
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -25,6 +28,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.piyushprajpti.pyclock.data.repository.DataStoreRepository
+import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
 import com.piyushprajpti.pyclock.ui.theme.PY_ClockTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.firstOrNull
@@ -35,6 +39,26 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore("preferenc
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private var isBound by mutableStateOf(false)
+    private lateinit var stopWatchService: StopWatchService
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as StopWatchService.StopwatchBinder
+            stopWatchService = binder.getService()
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isBound = false
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Intent(this, StopWatchService::class.java).also { intent ->
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +66,6 @@ class MainActivity : ComponentActivity() {
 
             // app theme logics
             val configuration = LocalConfiguration.current
-            val uiMode = configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 
             val dataStoreRepository = DataStoreRepository(applicationContext.dataStore)
             val initialThemeValue = runBlocking {
@@ -61,7 +84,11 @@ class MainActivity : ComponentActivity() {
             val isDarkTheme = when (selectedTheme.value) {
                 2 -> false
                 3 -> true
-                else -> (uiMode == Configuration.UI_MODE_NIGHT_YES)
+                else -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    configuration.isNightModeActive
+                } else {
+                    if (configuration.uiMode == 33) true else false
+                }
             }
 
             // notification logics
@@ -92,8 +119,19 @@ class MainActivity : ComponentActivity() {
             }
 
             PY_ClockTheme(darkTheme = isDarkTheme) {
-                PYQuoteApp(selectedTheme.value)
+                if (isBound) {
+                    PYQuoteApp(
+                        selectedTheme = selectedTheme.value,
+                        stopWatchService = stopWatchService
+                    )
+                }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unbindService(connection)
+        isBound = false
     }
 }

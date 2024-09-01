@@ -4,18 +4,20 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.piyushprajpti.pyclock.presentation.alarm_screen.EditAlarmScreen
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.presentation.main_feed.MainFeed
 import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
+import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
 
 @Composable
-fun PYQuoteApp(selectedTheme: Int) {
+fun PYQuoteApp(
+    selectedTheme: Int,
+    stopWatchService: StopWatchService
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -30,6 +32,7 @@ fun PYQuoteApp(selectedTheme: Int) {
         composable(route = Screen.MainFeed.route) {
             MainFeed(
                 selectedTheme = selectedTheme,
+                stopWatchService = stopWatchService,
                 onSettingClick = {
                     navController.navigate(Screen.SettingScreen.route)
                 },

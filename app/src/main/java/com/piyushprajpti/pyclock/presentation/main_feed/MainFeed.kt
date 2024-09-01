@@ -15,21 +15,22 @@ import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.piyushprajpti.pyclock.presentation.alarm_screen.AlarmScreen
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
 import com.piyushprajpti.pyclock.presentation.clock_screen.ClockScreen
 import com.piyushprajpti.pyclock.presentation.stopwatch_screen.StopWatchScreen
 import com.piyushprajpti.pyclock.presentation.timer_screen.TimerScreen
+import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
+import com.piyushprajpti.pyclock.service.stopwatch.StopwatchState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainFeed(
     selectedTheme: Int,
+    stopWatchService: StopWatchService,
     onSettingClick: () -> Unit,
     onAlarmCardClick: () -> Unit,
 ) {
@@ -41,7 +42,9 @@ fun MainFeed(
         else -> true
     }
 
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
+    val initialPage = if (stopWatchService.currentState.value == StopwatchState.Started || stopWatchService.currentState.value == StopwatchState.Paused) 2 else 0
+
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 4 })
 
     val topBarTitle = when (pagerState.currentPage) {
         0 -> "Clock"
@@ -102,7 +105,7 @@ fun MainFeed(
             when (page) {
                 0 -> ClockScreen(isDarkTheme = isDarkTheme)
                 1 -> AlarmScreen(onAlarmCardClick)
-                2 -> StopWatchScreen(isDarkTheme = isDarkTheme)
+                2 -> StopWatchScreen(isDarkTheme = isDarkTheme, stopWatchService = stopWatchService)
                 3 -> TimerScreen(isDarkTheme = isDarkTheme)
             }
         }

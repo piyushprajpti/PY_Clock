@@ -27,67 +27,44 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
+import com.piyushprajpti.pyclock.service.stopwatch.StopWatchServiceIntents
+import com.piyushprajpti.pyclock.service.stopwatch.StopwatchState
 import com.piyushprajpti.pyclock.ui.theme.ErrorRed
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
 import com.piyushprajpti.pyclock.util.ActionButton
 import com.piyushprajpti.pyclock.util.CircularProgressCanvas
+import com.piyushprajpti.pyclock.util.Constants
 import com.piyushprajpti.pyclock.util.PlayButton
 import kotlinx.coroutines.delay
 
 @Composable
 fun StopWatchScreen(
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    stopWatchService: StopWatchService
 ) {
+    val context = LocalContext.current
+    val hours by stopWatchService.hours
+    val minutes by stopWatchService.minutes
+    val seconds by stopWatchService.seconds
+    val currentState by stopWatchService.currentState
 
-    var isStarted by remember { mutableStateOf(false) }
+    var isStarted by remember {
+        mutableStateOf(
+            (currentState == StopwatchState.Started) || (currentState == StopwatchState.Paused)
+        )
+    }
 
-    var shouldReset by remember { mutableStateOf(false) }
+    var shouldReset by remember { mutableStateOf(currentState == StopwatchState.Paused) }
 
-    var elapsedTimeText by remember { mutableStateOf("00:00:00") }
-
-    var isProgressBarActive by remember { mutableStateOf(false) }
+    var isProgressBarActive by remember { mutableStateOf(currentState == StopwatchState.Started) }
 
     var progress by remember { mutableFloatStateOf(0f) }
 
     val durationMillis = 60 * 1000L
-
-    var startTime by remember { mutableStateOf(0L) }
-    var elapsedMillis by remember { mutableStateOf(0L) }
-    var totalElapsedMillis by remember { mutableStateOf(0L) }
-
-
-    LaunchedEffect(isProgressBarActive) {
-        if (isProgressBarActive) {
-            startTime = System.currentTimeMillis()
-        }
-        while (isProgressBarActive) {
-            val currentTime = System.currentTimeMillis()
-            val newElapsedMillis = elapsedMillis + (currentTime - startTime)
-            startTime = currentTime
-
-            if (newElapsedMillis >= durationMillis) {
-                elapsedMillis = 0L
-                progress = 0f
-                totalElapsedMillis += durationMillis
-            } else {
-                elapsedMillis = newElapsedMillis
-                progress = (newElapsedMillis.toFloat() / durationMillis).coerceIn(0f, 1f)
-            }
-
-            elapsedTimeText =
-                formatElapsedTime(totalElapsedMillis + elapsedMillis)
-            delay(33L)
-
-        }
-    }
-
-    data class LapData(
-        val lapCount: Int,
-        val lapTime: String,
-        val totalTime: String
-    )
 
     val lapsList = remember {
         mutableStateOf(listOf<LapData>())
@@ -101,33 +78,52 @@ fun StopWatchScreen(
         mutableLongStateOf(0L)
     }
 
+    LaunchedEffect(isProgressBarActive) {
+        if (isProgressBarActive) {
+            while (isProgressBarActive) {
+                val elapsedMillis =
+                    hours.toLong() * 3600000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L
+                progress =
+                    (elapsedMillis.toFloat() % durationMillis / durationMillis).coerceIn(0f, 1f)
+
+                delay(33L)
+            }
+        }
+    }
+
     fun onResetClick() {
         progress = 0f
         isStarted = false
         shouldReset = false
-        elapsedMillis = 0L
-        totalElapsedMillis = 0L
-        elapsedTimeText = "00:00:00"
         lapsList.value = listOf()
         lapCount = 1
         previousLapTime = 0L
+
+        StopWatchServiceIntents.triggerForegroundService(
+            context = context, action = Constants.ACTION_SERVICE_CANCEL
+        )
     }
 
     fun onLapClick() {
-        val newTotalTime = totalElapsedMillis + elapsedMillis
-        val newLapTime = if (previousLapTime == 0L) {
-            newTotalTime
-        } else {
-            newTotalTime - previousLapTime
-        }
-        previousLapTime = newTotalTime
+        val currentElapsedMillis =
+            hours.toLong() * 3600000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L
+        val newLapTime = currentElapsedMillis - previousLapTime
+        previousLapTime = currentElapsedMillis
+
         val newLap = LapData(
             lapCount,
             formatElapsedTime(newLapTime),
-            formatElapsedTime(newTotalTime)
+            formatElapsedTime(currentElapsedMillis)
         )
         lapsList.value += newLap
         lapCount += 1
+    }
+
+
+    LaunchedEffect(currentState) {
+        if (currentState == StopwatchState.Idle) onResetClick()
+        shouldReset = if (currentState == StopwatchState.Paused) true else false
+        isProgressBarActive = if (currentState == StopwatchState.Started) true else false
     }
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
@@ -151,7 +147,7 @@ fun StopWatchScreen(
                 )
 
                 Text(
-                    text = elapsedTimeText,
+                    text = "$hours:$minutes:$seconds",
                     fontSize = 32.sp,
                     letterSpacing = 3.sp,
                     color = MaterialTheme.colorScheme.primary,
@@ -206,6 +202,10 @@ fun StopWatchScreen(
                     titleColor = Color.White,
                     backColor = if (shouldReset) VioletBlue else ErrorRed,
                     onClick = {
+                        StopWatchServiceIntents.triggerForegroundService(
+                            context = context,
+                            action = if (currentState == StopwatchState.Started) Constants.ACTION_SERVICE_STOP else Constants.ACTION_SERVICE_START
+                        )
                         isProgressBarActive = shouldReset
                         shouldReset = !shouldReset
                     }
@@ -214,9 +214,12 @@ fun StopWatchScreen(
                 PlayButton {
                     isStarted = true
                     isProgressBarActive = true
+                    StopWatchServiceIntents.triggerForegroundService(
+                        context = context,
+                        action = Constants.ACTION_SERVICE_START
+                    )
                 }
             }
         }
-
     }
 }
