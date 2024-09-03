@@ -6,7 +6,7 @@ import com.piyushprajpti.pyclock.R
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchServiceIntents
 import com.piyushprajpti.pyclock.service.timer.TimerServiceIntents
 import com.piyushprajpti.pyclock.util.Constants.STOPWATCH_CHANNEL_ID
-import com.piyushprajpti.pyclock.util.Constants.TIMER_CHANNEL_ID
+import com.piyushprajpti.pyclock.util.Constants.TIMER_CHANNEL_ID_1
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,7 +38,7 @@ object NotificationModule {
     @Provides
     @Named("timerNotificationBuilder")
     fun providesTimerNotificationBuilder(@ApplicationContext context: Context): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, TIMER_CHANNEL_ID)
+        return NotificationCompat.Builder(context, TIMER_CHANNEL_ID_1)
             .setContentTitle("Timer")
             .setContentText("00:00:00")
             .setSmallIcon(R.drawable.ic_timer)

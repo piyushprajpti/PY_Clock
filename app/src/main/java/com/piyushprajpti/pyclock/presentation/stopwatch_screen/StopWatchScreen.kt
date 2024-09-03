@@ -132,10 +132,6 @@ fun StopWatchScreen(
         val currentElapsedMillis =
             hours.toLong() * 3600000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L - 3L
 
-        Log.d("TAG", "onLapClick: ${hours.toLong()}, ${hours.toInt()}")
-        Log.d("TAG", "onLapClick: ${minutes.toLong()}, ${minutes.toInt()}")
-        Log.d("TAG", "onLapClick: ${seconds.toLong()}, ${seconds.toInt()}")
-
         val newLapTime = currentElapsedMillis - previousLapTime - 1L
         previousLapTime = currentElapsedMillis
 
@@ -154,8 +150,8 @@ fun StopWatchScreen(
             onResetClick()
             commonViewModel.clearLapData()
         }
-        shouldReset = if (currentState == StopwatchState.Paused) true else false
-        isProgressBarActive = if (currentState == StopwatchState.Started) true else false
+        shouldReset = currentState == StopwatchState.Paused
+        isProgressBarActive = currentState == StopwatchState.Started
     }
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {

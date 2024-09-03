@@ -141,7 +141,6 @@ class MainActivity : ComponentActivity() {
             }
 
             PY_ClockTheme(darkTheme = isDarkTheme) {
-                Log.d("TAG", "onCreate: $isStopwatchBound, $isTimerBound")
                 if (isStopwatchBound && isTimerBound) {
                     PYQuoteApp(
                         selectedTheme = selectedTheme.value,

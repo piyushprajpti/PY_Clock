@@ -1,6 +1,5 @@
 package com.piyushprajpti.pyclock.presentation.timer_screen
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -19,8 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,8 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.piyushprajpti.pyclock.domain.repository.CommonViewModel
 import com.piyushprajpti.pyclock.service.timer.TimerService
 import com.piyushprajpti.pyclock.service.timer.TimerServiceIntents
 import com.piyushprajpti.pyclock.service.timer.TimerState
@@ -48,51 +45,72 @@ import kotlinx.coroutines.launch
 fun TimerScreen(
     isDarkTheme: Boolean,
     timerService: TimerService,
-    commonViewModel: CommonViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
 
     val context = LocalContext.current
     val hours by timerService.hours
     val minutes by timerService.minutes
     val seconds by timerService.seconds
+    val totalMillis by timerService.totalMillis
     val currentState by timerService.currentState
 
-    val coroutineScope = rememberCoroutineScope()
-
-    var isStarted by remember { mutableStateOf(false) }
-
-    var isPaused by remember { mutableStateOf(false) }
+    var isStarted by remember {
+        mutableStateOf(
+            currentState == TimerState.Started || currentState == TimerState.Paused
+        )
+    }
+    var isPaused by remember { mutableStateOf(currentState == TimerState.Paused) }
 
     var inputHours by remember { mutableStateOf("00") }
-
     var inputMinutes by remember { mutableStateOf("00") }
-
     var inputSeconds by remember { mutableStateOf("30") }
 
+    var isProgressBarActive by remember { mutableStateOf(currentState == TimerState.Started) }
     val progress = remember { Animatable(1f) }
+    var snapToProgress by remember { mutableStateOf(progress.value) }
 
-    var totalMillis by remember { mutableLongStateOf(0L) }
-    var remainingTime by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        if (currentState == TimerState.Started || currentState == TimerState.Paused) {
+            val temp =
+                hours.toLong() * 360000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L
 
-//    if (isStarted) {
-//        LaunchedEffect(progress.value) {
-//            val remainingMillis = (progress.value * totalMillis).toLong()
-//            val hours = (remainingMillis / 3600000).toInt()
-//            val minutes = ((remainingMillis % 3600000) / 60000).toInt()
-//            val seconds = ((remainingMillis % 60000) / 1000).toInt()
-//            remainingTime = "%02d:%02d:%02d".format(hours, minutes, seconds)
-//        }
-//    }
+            snapToProgress = temp.toFloat() / totalMillis
+            progress.snapTo(snapToProgress)
+
+        }
+    }
+
+    LaunchedEffect(isProgressBarActive) {
+        if (isProgressBarActive) {
+
+            val remainingMillis =
+                hours.toLong() * 3600000L + minutes.toLong() * 60000L + seconds.toLong() * 1000L
+
+            coroutineScope.launch {
+                progress.animateTo(
+                    targetValue = 0f,
+                    animationSpec = tween(
+                        durationMillis = remainingMillis.toInt(),
+                        easing = LinearEasing
+                    )
+                )
+            }
+
+        } else {
+            coroutineScope.launch {
+                progress.stop()
+            }
+        }
+    }
+
+    LaunchedEffect(currentState) {
+        isStarted = currentState != TimerState.Idle
+        isPaused = currentState == TimerState.Paused
+        isProgressBarActive = currentState == TimerState.Started
+    }
 
     fun onPlayClick() {
-
-        TimerServiceIntents.triggerForegroundService(
-            context = context,
-            action = Constants.ACTION_SERVICE_START,
-            hours = inputHours,
-            minutes = inputMinutes,
-            seconds = inputSeconds
-        )
 
         if (inputMinutes.toInt() >= 60) {
             Toast.makeText(context, "Minute input range is 0 to 59", Toast.LENGTH_SHORT).show()
@@ -100,28 +118,17 @@ fun TimerScreen(
             Toast.makeText(context, "Second input range is 0 to 59", Toast.LENGTH_SHORT).show()
         } else {
             isStarted = true
-            totalMillis =
-                (inputHours.toInt() * 3600 + inputMinutes.toInt() * 60 + inputSeconds.toInt()).toLong() * 1000L
-            Log.d(
-                "TAG",
-                "onPlayClick: ${inputHours.toInt()}, ${inputMinutes.toInt()}, ${inputSeconds.toInt()}, $totalMillis"
-            )
-
             coroutineScope.launch {
                 progress.snapTo(1f)
-                progress.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(
-                        durationMillis = totalMillis.toInt(),
-                        easing = LinearEasing
-                    )
-                )
-//                commonViewModel.sendTimerNotification(
-//                    "$inputHours:$inputMinutes:$inputSeconds",
-//                    context
-//                )
-                isStarted = false
             }
+            TimerServiceIntents.triggerForegroundService(
+                context = context,
+                action = Constants.ACTION_SERVICE_START,
+                hours = inputHours,
+                minutes = inputMinutes,
+                seconds = inputSeconds
+            )
+
         }
     }
 
@@ -131,25 +138,6 @@ fun TimerScreen(
             context = context,
             action = if (currentState == TimerState.Started) Constants.ACTION_SERVICE_STOP else Constants.ACTION_SERVICE_START
         )
-
-        if (isPaused) {
-            val remainingMillis = (progress.value * totalMillis).toInt()
-            coroutineScope.launch {
-                progress.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(durationMillis = remainingMillis, easing = LinearEasing)
-                )
-//                commonViewModel.sendTimerNotification(
-//                    "$inputHours:$inputMinutes:$inputSeconds",
-//                    context
-//                )
-                isStarted = false
-            }
-        } else {
-            coroutineScope.launch {
-                progress.stop()
-            }
-        }
         isPaused = !isPaused
     }
 
@@ -269,7 +257,7 @@ fun TimerScreen(
                     title = "Delete",
                     titleColor = MaterialTheme.colorScheme.primary,
                     backColor = MaterialTheme.colorScheme.secondary,
-                    onClick = {onDeleteClick()}
+                    onClick = { onDeleteClick() }
                 )
 
                 ActionButton(

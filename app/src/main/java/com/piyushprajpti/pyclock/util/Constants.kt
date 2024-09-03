@@ -5,6 +5,7 @@ object Constants {
     const val ACTION_SERVICE_START = "ACTION_SERVICE_START"
     const val ACTION_SERVICE_STOP = "ACTION_SERVICE_STOP"
     const val ACTION_SERVICE_CANCEL = "ACTION_SERVICE_CANCEL"
+    const val ACTION_SERVICE_COMPLETE = "ACTION_SERVICE_COMPLETE"
 
     const val STOPWATCH_STATE = "STOPWATCH_STATE"
     const val TIMER_STATE = "TIMER_STATE"
@@ -13,9 +14,11 @@ object Constants {
     const val STOPWATCH_CHANNEL_NAME = "Stopwatch"
     const val STOPWATCH_NOTIFICATION_ID = 1
 
-    const val TIMER_CHANNEL_ID = "TIMER_CHANNEL_ID"
+    const val TIMER_CHANNEL_ID_1 = "TIMER_CHANNEL_ID_1"
+    const val TIMER_CHANNEL_ID_2 = "TIMER_CHANNEL_ID_2"
     const val TIMER_CHANNEL_NAME = "Timer"
     const val TIMER_NOTIFICATION_ID = 2
+    const val TIMER_ALERT_NOTIFICATION_ID = 3
 
     const val HOURS = "HOURS"
     const val MINUTES = "MINUTES"

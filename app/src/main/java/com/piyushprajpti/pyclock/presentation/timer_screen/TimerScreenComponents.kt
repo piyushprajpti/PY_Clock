@@ -73,13 +73,12 @@ fun TimeBubble(
 ) {
     Box(
         modifier = Modifier
-            .background(VioletBlue, CircleShape)
+            .background(MaterialTheme.colorScheme.secondary, CircleShape)
             .clip(CircleShape)
             .clickable { onClick() }
-            .width(100.dp)
-            .height(100.dp),
+            .padding(horizontal = 20.dp, vertical = 15.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = time, color = Color.White)
+        Text(text = time, color = MaterialTheme.colorScheme.primary)
     }
 }
