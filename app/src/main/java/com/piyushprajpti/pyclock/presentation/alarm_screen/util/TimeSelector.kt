@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
+import com.piyushprajpti.pyclock.util.DialogBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

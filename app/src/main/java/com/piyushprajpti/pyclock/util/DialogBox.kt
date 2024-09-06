@@ -1,4 +1,4 @@
-package com.piyushprajpti.pyclock.presentation.alarm_screen.util
+package com.piyushprajpti.pyclock.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.piyushprajpti.pyclock.util.DialogActionButton
+import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun DialogBox(
@@ -27,12 +27,16 @@ fun DialogBox(
     content: @Composable (() -> Unit),
     onCancelClick: () -> Unit,
     onOkClick: () -> Unit,
+    usePlatformDefaultWidth: Boolean = true
 ) {
-    Dialog(onDismissRequest = { onCancelClick() }) {
+    Dialog(
+        onDismissRequest = { onCancelClick() },
+        properties = DialogProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
+        ) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
-                .padding(20.dp)
+                .padding(horizontal = if (!usePlatformDefaultWidth) 10.dp else 20.dp, vertical = 20.dp)
         ) {
             if (title != null) {
                 Text(

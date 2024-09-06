@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.piyushprajpti.pyclock.util.DialogActionButton
+import com.piyushprajpti.pyclock.util.DialogBox
 
 @Composable
 fun ThemePopup(
@@ -38,26 +39,9 @@ fun ThemePopup(
         mutableIntStateOf(currentTheme)
     }
 
-    Dialog(
-        onDismissRequest = { onCancelClick() }
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 30.dp)
-                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp))
-                .padding(20.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "Select App Theme",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
+    DialogBox(
+        title = "Select App Theme",
+        content = {
             Options(
                 title = "System Default",
                 isSelected = selectedTheme.intValue == 1,
@@ -74,23 +58,15 @@ fun ThemePopup(
                 onClick = { selectedTheme.intValue = 3 }
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                DialogActionButton(title = "CANCEL", onClick = { onCancelClick() })
-
-                Spacer(modifier = Modifier.width(25.dp))
-
-                DialogActionButton(title = "OK", onClick = { onOkClick(selectedTheme.intValue) })
-
-            }
+            Spacer(modifier = Modifier.height(20.dp))
+        },
+        onCancelClick = {
+            onCancelClick()
+        },
+        onOkClick = {
+            onOkClick(selectedTheme.intValue)
         }
-    }
+    )
 }
 
 @Composable

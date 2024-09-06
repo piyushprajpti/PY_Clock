@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.piyushprajpti.pyclock.ui.theme.VioletBlue
+import com.piyushprajpti.pyclock.util.DialogBox
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -73,7 +74,7 @@ fun DateSelector(
                     state = datePickerState,
                     title = {
                         Text(
-                            text = "Select Alarm Time",
+                            text = "Select Alarm Date",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 20.sp,
@@ -89,7 +90,8 @@ fun DateSelector(
             onOkClick = {
                 date.value = dateFormatter(datePickerState.selectedDateMillis)
                 showDialogBox.value = false
-            }
+            },
+            usePlatformDefaultWidth = false
         )
     }
 }
