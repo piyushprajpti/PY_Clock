@@ -1,5 +1,6 @@
 package com.piyushprajpti.pyclock.di
 
+import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -49,5 +50,11 @@ object CommonModule {
     @Provides
     fun providesDatabase(@ApplicationContext context: Context): PYClockDatabase {
         return Room.databaseBuilder(context, PYClockDatabase::class.java, "py_clock").build()
+    }
+
+    @Singleton
+    @Provides
+    fun providesAlarmManager(@ApplicationContext context: Context): AlarmManager {
+        return context.getSystemService(AlarmManager::class.java)
     }
 }

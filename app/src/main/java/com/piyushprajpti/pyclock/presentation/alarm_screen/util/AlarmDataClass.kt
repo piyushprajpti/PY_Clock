@@ -5,3 +5,8 @@ data class AlarmData(
     val time: Triple<String, String, String>,
     val date: String,
 )
+
+data class ScheduleAlarmData(
+    val time: Long,
+    val message: String
+)

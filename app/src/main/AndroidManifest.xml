@@ -4,6 +4,11 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <application
         android:name=".RootApplication"
@@ -29,16 +34,33 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".service.alarm.AlarmActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
+            android:theme="@style/Theme.PY_Clock"
+            android:turnScreenOn="true" />
+
         <service
             android:name=".service.stopwatch.StopWatchService"
-            android:foregroundServiceType="shortService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
 
-        <service android:name=".service.timer.TimerService"
-            android:foregroundServiceType="shortService"
+        <service
+            android:name=".service.timer.TimerService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
+
+        <receiver
+            android:name=".service.alarm.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="py clock receiver" />
+
     </application>
 
 </manifest>

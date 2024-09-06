@@ -32,18 +32,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmViewModel
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.DateSelector
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.FutureSelectableDates
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.ScheduleAlarmData
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.TimeSelector
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.dateFormatter
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.timeFormatter
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("MissingPermission")
 @Composable
 fun EditAlarmScreen(
-    redirectToAlarmScreen: (alarmData: AlarmData) -> Unit
+    redirectToAlarmScreen: (alarmData: AlarmData) -> Unit,
+    alarmViewModel: AlarmViewModel = hiltViewModel()
 ) {
     val tomorrowMillis = System.currentTimeMillis() + 24 * 60 * 60 * 1000
 
@@ -53,6 +58,18 @@ fun EditAlarmScreen(
         initialSelectedDateMillis = tomorrowMillis,
         selectableDates = FutureSelectableDates()
     )
+
+    fun calculateScheduleTimeMillis(dateMillis: Long, hourMillis: Int, minuteMillis: Int): Long {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = dateMillis
+            set(Calendar.HOUR_OF_DAY, hourMillis)
+            set(Calendar.MINUTE, minuteMillis)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        return calendar.timeInMillis
+    }
 
     fun onDeleteClick() {
         redirectToAlarmScreen(
@@ -75,6 +92,13 @@ fun EditAlarmScreen(
     }
 
     fun onSaveClick() {
+        val scheduleTimeMillis = calculateScheduleTimeMillis(
+            dateMillis = datePickerState.selectedDateMillis ?: 0L,
+            hourMillis = timePickerState.hour,
+            minuteMillis = timePickerState.minute
+        )
+
+        alarmViewModel.scheduleAlarm(scheduleTimeMillis)
         redirectToAlarmScreen(
             AlarmData(
                 true,
