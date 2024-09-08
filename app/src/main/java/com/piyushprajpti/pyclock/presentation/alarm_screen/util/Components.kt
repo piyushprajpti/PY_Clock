@@ -23,19 +23,21 @@ class FutureSelectableDates : SelectableDates {
     }
 }
 
-fun convertMillisInRemainingTime(time:Long): String {
+fun convertMillisInRemainingTime(time: Long): String {
     val currentMillis = System.currentTimeMillis()
     val remainingMillis = time - currentMillis
 
+    val months = remainingMillis / 2592000000
     val days = remainingMillis / 86400000
     val hours = (remainingMillis % 86400000) / 3600000
     val minutes = (remainingMillis % 3600000) / 60000
 
     return when {
+        months > 0 -> "Alarm will ring in $months months, $days days, $hours hours and $minutes minutes"
         days > 0 -> "Alarm will ring in $days days, $hours hours and $minutes minutes"
         hours > 0 -> "Alarm will ring in $hours hours and $minutes minutes"
         minutes > 0 -> "Alarm will ring in $minutes minutes"
-        else -> "Alarm is ringing now!"
+        else -> "Alarm will ring in less one minute!"
     }
 }
 
