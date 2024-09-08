@@ -15,5 +15,5 @@ data class AlarmData(
     var isOn: Boolean,
 
     @ColumnInfo("millis")
-    val time: Long
+    var time: Long
 )

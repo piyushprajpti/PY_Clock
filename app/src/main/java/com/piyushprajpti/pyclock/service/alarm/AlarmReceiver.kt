@@ -7,8 +7,12 @@ import android.content.Intent
 import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat
 import com.piyushprajpti.pyclock.R
+import com.piyushprajpti.pyclock.di.CommonModule
 import com.piyushprajpti.pyclock.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -17,7 +21,18 @@ class AlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var notificationManager: NotificationManager
 
+    @Inject
+    lateinit var db: CommonModule.PYClockDatabase
+
     override fun onReceive(context: Context?, intent: Intent?) {
+        val alarmId = intent?.getIntExtra(Constants.ALARM_ID, -1)
+        if (alarmId != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                db.alarmDao().updateAlarmStatus(alarmId, false)
+            }
+        }
+
+
         if (context != null) {
             val notification =
                 NotificationCompat.Builder(context.applicationContext, Constants.ALARM_CHANNEL_ID)

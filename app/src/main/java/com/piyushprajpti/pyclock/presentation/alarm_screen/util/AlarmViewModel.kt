@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.piyushprajpti.pyclock.data.local_storage.alarm.AlarmData
 import com.piyushprajpti.pyclock.di.CommonModule
 import com.piyushprajpti.pyclock.service.alarm.AlarmServiceIntents
+import com.piyushprajpti.pyclock.util.Constants
 import com.piyushprajpti.pyclock.util.toastRemainingTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -55,6 +56,11 @@ class AlarmViewModel @Inject constructor(
     }
 
     fun updateAlarmStatus(alarmData: AlarmData) {
+        val currentMillis = System.currentTimeMillis()
+        if (currentMillis >= alarmData.time) {
+            alarmData.time += Constants.TOMORROW_MILLIS
+        }
+
         viewModelScope.launch {
             if (alarmData.isOn) {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -67,7 +73,14 @@ class AlarmViewModel @Inject constructor(
                 alarmManager.cancel(AlarmServiceIntents.cancelIntent(context, alarmData.id))
             }
             withContext(Dispatchers.IO) {
-                db.alarmDao().updateAlarmStatus(alarmData.id, alarmData.isOn)
+                db.alarmDao().upsertAlarm(alarmData)
+            }
+        }
+    }
+
+    fun updateAlarmAfterRing(alarmId: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
             }
         }
     }

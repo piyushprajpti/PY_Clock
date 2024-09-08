@@ -37,7 +37,7 @@ fun convertMillisInRemainingTime(time: Long): String {
         days > 0 -> "Alarm will ring in $days days, $hours hours and $minutes minutes"
         hours > 0 -> "Alarm will ring in $hours hours and $minutes minutes"
         minutes > 0 -> "Alarm will ring in $minutes minutes"
-        else -> "Alarm will ring in less one minute!"
+        else -> "Alarm will ring in less than one minute!"
     }
 }
 
