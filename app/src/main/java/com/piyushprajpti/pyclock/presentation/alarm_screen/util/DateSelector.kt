@@ -98,7 +98,7 @@ fun DateSelector(
 
 fun dateFormatter(millis: Long?): String {
     if (millis != null) {
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("EEEE, MMM d", Locale.getDefault())
         val dateString = dateFormat.format(Date(millis))
 
         return dateString

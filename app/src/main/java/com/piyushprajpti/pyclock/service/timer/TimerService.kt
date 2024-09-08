@@ -215,7 +215,7 @@ class TimerService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel1 = NotificationChannel(
                 Constants.TIMER_CHANNEL_ID_1,
-                Constants.TIMER_CHANNEL_NAME,
+                Constants.TIMER_CHANNEL_NAME_1,
                 NotificationManager.IMPORTANCE_LOW
             )
 
@@ -228,7 +228,7 @@ class TimerService : Service() {
 
             val channel2 = NotificationChannel(
                 Constants.TIMER_CHANNEL_ID_2,
-                Constants.TIMER_CHANNEL_NAME,
+                Constants.TIMER_CHANNEL_NAME_2,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 enableVibration(true)

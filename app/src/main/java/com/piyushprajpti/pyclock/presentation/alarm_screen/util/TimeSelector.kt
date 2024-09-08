@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,20 +35,26 @@ import com.piyushprajpti.pyclock.util.DialogBox
 fun TimeSelector(
     timePickerState: TimePickerState
 ) {
+
     val showDialogBox = remember {
         mutableStateOf(false)
     }
 
+    val (initialHour, initialMinute, initialPeriod) = timeFormatter(
+        timePickerState.hour,
+        timePickerState.minute
+    )
+
     val hour = remember {
-        mutableStateOf("06")
+        mutableStateOf(initialHour)
     }
 
     val minute = remember {
-        mutableStateOf("00")
+        mutableStateOf(initialMinute)
     }
 
     val period = remember {
-        mutableStateOf("AM")
+        mutableStateOf(initialPeriod)
     }
 
     Row(
@@ -104,20 +111,4 @@ fun TimeSelector(
             }
         )
     }
-}
-
-fun timeFormatter(hour: Int, minute: Int): Triple<String, String, String> {
-    val period = if (hour < 12) "AM" else "PM"
-    val adjustedHour = when {
-        hour == 0 -> "12"
-        hour < 10 -> "0$hour"
-        hour > 19 -> "${hour - 12}"
-        hour > 12 -> "0${hour - 12}"
-        else -> "$hour"
-    }
-    val adjustedMinute = when {
-        minute < 10 -> "0$minute"
-        else -> "$minute"
-    }
-    return Triple(adjustedHour, adjustedMinute, period)
 }

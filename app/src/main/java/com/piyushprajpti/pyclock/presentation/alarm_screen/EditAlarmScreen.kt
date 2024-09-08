@@ -1,6 +1,6 @@
 package com.piyushprajpti.pyclock.presentation.alarm_screen
 
-import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,88 +24,104 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmData
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmViewModel
+import com.piyushprajpti.pyclock.data.local_storage.alarm.AlarmData
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.DateSelector
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.AlarmViewModel
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.FutureSelectableDates
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.ScheduleAlarmData
 import com.piyushprajpti.pyclock.presentation.alarm_screen.util.TimeSelector
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.dateFormatter
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.timeFormatter
-import java.util.Calendar
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.covertDateTimeToMillis
+import com.piyushprajpti.pyclock.presentation.alarm_screen.util.getDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("MissingPermission")
 @Composable
 fun EditAlarmScreen(
-    redirectToAlarmScreen: (alarmData: AlarmData) -> Unit,
+    alarmId: Int?,
+    redirectToAlarmScreen: () -> Unit,
     alarmViewModel: AlarmViewModel = hiltViewModel()
 ) {
-    val tomorrowMillis = System.currentTimeMillis() + 24 * 60 * 60 * 1000
+    val context = LocalContext.current
+    val tomorrowMillis = System.currentTimeMillis() + 86400000
 
-    val timePickerState = rememberTimePickerState()
+    var initialData by remember {
+        mutableStateOf(Triple(6, 0, tomorrowMillis))
+    }
 
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = tomorrowMillis,
-        selectableDates = FutureSelectableDates()
-    )
-
-    fun calculateScheduleTimeMillis(dateMillis: Long, hourMillis: Int, minuteMillis: Int): Long {
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = dateMillis
-            set(Calendar.HOUR_OF_DAY, hourMillis)
-            set(Calendar.MINUTE, minuteMillis)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+    LaunchedEffect(alarmId) {
+        if (alarmId != null) {
+            val alarmData = alarmViewModel.getAlarmDataById(alarmId)
+            initialData = getDateTime(alarmData.time)
         }
+    }
 
-        return calendar.timeInMillis
+    var isValueChanged by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(initialData) {
+        isValueChanged = true
+    }
+
+    val timePickerState = if (isValueChanged) {
+        rememberTimePickerState(initialData.first, initialData.second)
+    } else {
+        rememberTimePickerState(initialData.first, initialData.second)
+    }
+
+    val datePickerState = if (isValueChanged) {
+        rememberDatePickerState(
+            initialSelectedDateMillis = initialData.third,
+            selectableDates = FutureSelectableDates()
+        )
+    } else {
+        rememberDatePickerState(
+            initialSelectedDateMillis = initialData.third,
+            selectableDates = FutureSelectableDates()
+        )
     }
 
     fun onDeleteClick() {
-        redirectToAlarmScreen(
-            AlarmData(
-                true,
-                timeFormatter(timePickerState.hour, timePickerState.minute),
-                dateFormatter(datePickerState.selectedDateMillis)
-            )
-        )
+        redirectToAlarmScreen()
+        if (alarmId != null) {
+            alarmViewModel.deleteAlarm(alarmId)
+        }
     }
 
     fun onCancelClick() {
-        redirectToAlarmScreen(
-            AlarmData(
-                true,
-                timeFormatter(timePickerState.hour, timePickerState.minute),
-                dateFormatter(datePickerState.selectedDateMillis)
-            )
-        )
+        redirectToAlarmScreen()
     }
 
     fun onSaveClick() {
-        val scheduleTimeMillis = calculateScheduleTimeMillis(
+        val currentTimeMillis = System.currentTimeMillis()
+        val dateTimeMillis = covertDateTimeToMillis(
             dateMillis = datePickerState.selectedDateMillis ?: 0L,
             hourMillis = timePickerState.hour,
             minuteMillis = timePickerState.minute
         )
 
-        alarmViewModel.scheduleAlarm(scheduleTimeMillis)
-        redirectToAlarmScreen(
-            AlarmData(
-                true,
-                timeFormatter(timePickerState.hour, timePickerState.minute),
-                dateFormatter(datePickerState.selectedDateMillis)
+        if (dateTimeMillis <= currentTimeMillis) {
+            Toast.makeText(context, "Can't set alarm for time in past", Toast.LENGTH_LONG).show()
+        } else {
+            alarmViewModel.scheduleAlarm(
+                if (alarmId != null) AlarmData(alarmId, true, dateTimeMillis)
+                else AlarmData(dateTimeMillis.hashCode(), true, dateTimeMillis)
             )
-        )
+            redirectToAlarmScreen()
+        }
     }
 
     Scaffold(

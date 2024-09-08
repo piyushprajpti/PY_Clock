@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.piyushprajpti.pyclock.presentation.alarm_screen.util.ScheduleAlarmData
 
 object AlarmServiceIntents {
 
@@ -12,14 +11,14 @@ object AlarmServiceIntents {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     } else 0
 
-    fun scheduleIntent(context: Context, time: Long): PendingIntent {
+    fun scheduleIntent(context: Context, alarmId: Int): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java)
-        return PendingIntent.getBroadcast(context, time.hashCode(), intent, flag)
+        return PendingIntent.getBroadcast(context, alarmId, intent, flag)
     }
 
-    fun cancelIntent(context: Context, time: Long): PendingIntent {
+    fun cancelIntent(context: Context, alarmId: Int): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java)
-        return PendingIntent.getBroadcast(context, time.hashCode(), intent, flag)
+        return PendingIntent.getBroadcast(context, alarmId, intent, flag)
     }
 
 //    fun fullScreenIntent(context: Context, time: String, message: String): PendingIntent {

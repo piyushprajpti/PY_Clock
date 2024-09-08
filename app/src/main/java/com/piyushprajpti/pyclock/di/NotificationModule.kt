@@ -6,7 +6,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
-import android.os.VibrationEffect
 import androidx.core.app.NotificationCompat
 import com.piyushprajpti.pyclock.R
 import com.piyushprajpti.pyclock.service.stopwatch.StopWatchServiceIntents
@@ -20,7 +19,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
-import javax.inject.Inject
 import javax.inject.Named
 
 @Module

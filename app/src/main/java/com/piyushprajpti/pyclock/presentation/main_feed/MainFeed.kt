@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.piyushprajpti.pyclock.data.local_storage.alarm.AlarmData
 import com.piyushprajpti.pyclock.presentation.alarm_screen.AlarmScreen
 import com.piyushprajpti.pyclock.presentation.clock_screen.ClockScreen
 import com.piyushprajpti.pyclock.presentation.stopwatch_screen.StopWatchScreen
@@ -35,7 +36,7 @@ fun MainFeed(
     stopWatchService: StopWatchService,
     timerService: TimerService,
     onSettingClick: () -> Unit,
-    onAlarmCardClick: () -> Unit,
+    onAlarmCardClick: (alarmId: Int?) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
 

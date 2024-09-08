@@ -21,7 +21,7 @@ class AlarmReceiver : BroadcastReceiver() {
         if (context != null) {
             val notification =
                 NotificationCompat.Builder(context.applicationContext, Constants.ALARM_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.share)
+                    .setSmallIcon(R.drawable.ic_alarm)
                     .setContentTitle("Alarm is ringing!")
                     .setContentText("Swipe to dismiss")
                     .setCategory(NotificationCompat.CATEGORY_ALARM)

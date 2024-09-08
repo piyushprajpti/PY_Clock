@@ -5,9 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.piyushprajpti.pyclock.presentation.alarm_screen.EditAlarmScreen
 import com.piyushprajpti.pyclock.presentation.main_feed.MainFeed
 import com.piyushprajpti.pyclock.presentation.setting_screen.SettingScreen
@@ -40,7 +42,8 @@ fun PYQuoteApp(
                     navController.navigate(Screen.SettingScreen.route)
                 },
                 onAlarmCardClick = {
-                    navController.navigate(Screen.EditAlarmScreen.route)
+                    val alarmId = it.toString()
+                    navController.navigate(Screen.EditAlarmScreen.setId(alarmId))
                 }
             )
         }
@@ -54,8 +57,18 @@ fun PYQuoteApp(
             )
         }
 
-        composable(route = Screen.EditAlarmScreen.route) {
+        composable(
+            route = Screen.EditAlarmScreen.getId(),
+            arguments = listOf(navArgument("alarmId") {
+                type = NavType.StringType
+                nullable = true
+            })
+        ) {
+            val temp = it.arguments?.getString("alarmId")
+            val alarmId = if (temp == "null") null else temp?.toInt()
+
             EditAlarmScreen(
+                alarmId = alarmId,
                 redirectToAlarmScreen = {
                     navController.navigateUp()
                 }

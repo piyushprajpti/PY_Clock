@@ -19,7 +19,8 @@ object Constants {
 
     const val TIMER_CHANNEL_ID_1 = "TIMER_CHANNEL_ID_1"
     const val TIMER_CHANNEL_ID_2 = "TIMER_CHANNEL_ID_2"
-    const val TIMER_CHANNEL_NAME = "Timer"
+    const val TIMER_CHANNEL_NAME_1 = "Timer"
+    const val TIMER_CHANNEL_NAME_2 = "Timer Alert"
     const val TIMER_NOTIFICATION_ID = 3
     const val TIMER_ALERT_NOTIFICATION_ID = 4
 
