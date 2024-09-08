@@ -17,8 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,26 +35,16 @@ import com.piyushprajpti.pyclock.util.DialogBox
 fun TimeSelector(
     timePickerState: TimePickerState
 ) {
-
     val showDialogBox = remember {
         mutableStateOf(false)
     }
 
-    val (initialHour, initialMinute, initialPeriod) = timeFormatter(
-        timePickerState.hour,
-        timePickerState.minute
-    )
-
-    val hour = remember {
-        mutableStateOf(initialHour)
+    val data = remember {
+        mutableStateOf(timeFormatter(timePickerState.hour, timePickerState.minute))
     }
 
-    val minute = remember {
-        mutableStateOf(initialMinute)
-    }
-
-    val period = remember {
-        mutableStateOf(initialPeriod)
+    LaunchedEffect(key1 = timePickerState.hour, key2 = timePickerState.minute) {
+        data.value = timeFormatter(timePickerState.hour, timePickerState.minute)
     }
 
     Row(
@@ -65,7 +55,7 @@ fun TimeSelector(
 
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
-                text = "${hour.value}:${minute.value}",
+                text = "${data.value.first}:${data.value.second}",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 60.sp,
@@ -74,7 +64,7 @@ fun TimeSelector(
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = period.value,
+                text = data.value.third,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 20.sp,
@@ -103,10 +93,6 @@ fun TimeSelector(
                 showDialogBox.value = false
             },
             onOkClick = {
-                val temp = timeFormatter(timePickerState.hour, timePickerState.minute)
-                hour.value = temp.first
-                minute.value = temp.second
-                period.value = temp.third
                 showDialogBox.value = false
             }
         )

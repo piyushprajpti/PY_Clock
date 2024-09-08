@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +42,10 @@ fun DateSelector(
 
     val date = remember {
         mutableStateOf(dateFormatter(datePickerState.selectedDateMillis))
+    }
+
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+        date.value = dateFormatter(datePickerState.selectedDateMillis)
     }
 
     Row(
@@ -88,7 +93,6 @@ fun DateSelector(
                 showDialogBox.value = false
             },
             onOkClick = {
-                date.value = dateFormatter(datePickerState.selectedDateMillis)
                 showDialogBox.value = false
             },
             usePlatformDefaultWidth = false
