@@ -65,21 +65,21 @@ object NotificationModule {
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                Constants.ALARM_CHANNEL_ID,
-                Constants.ALARM_CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                setSound(alarmSound, audioAttributes)
-                shouldVibrate()
-                enableVibration(true)
-                enableLights(true)
-                vibrationPattern = longArrayOf(0, 1000)
-            }
-
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            Constants.ALARM_CHANNEL_ID,
+            Constants.ALARM_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            setSound(alarmSound, audioAttributes)
+            shouldVibrate()
+            enableVibration(true)
+            enableLights(true)
+            vibrationPattern = longArrayOf(0, 500, 500, 500)
+            setBypassDnd(true)
+            importance = NotificationManager.IMPORTANCE_HIGH
         }
+
+        notificationManager.createNotificationChannel(channel)
 
     }
 }
