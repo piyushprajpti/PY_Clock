@@ -1,19 +1,14 @@
 package com.piyushprajpti.pyclock
 
-import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -21,8 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -99,7 +92,7 @@ class MainActivity : ComponentActivity() {
 
             val dataStoreRepository = DataStoreRepository(applicationContext.dataStore)
             val initialThemeValue = runBlocking {
-                dataStoreRepository.getValue(intPreferencesKey("selected_theme")).firstOrNull() ?: 1
+                dataStoreRepository.getValue(intPreferencesKey("selected_theme")).firstOrNull() ?: 0
             }
 
             val themePref =
@@ -108,44 +101,17 @@ class MainActivity : ComponentActivity() {
                 )
 
             val selectedTheme = remember {
-                derivedStateOf { themePref.value ?: 1 }
+                derivedStateOf { themePref.value ?: 0 }
             }
+
+            val isSystemInDarkTheme =
+                (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
 
             val isDarkTheme = when (selectedTheme.value) {
                 2 -> false
                 3 -> true
-                else -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    configuration.isNightModeActive
-                } else {
-                    if (configuration.uiMode == 33) true else false
-                }
-            }
-
-            // notification logics
-            val context = LocalContext.current
-
-            var hasNotificationPermission by remember {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    mutableStateOf(
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.POST_NOTIFICATIONS
-                        ) == PackageManager.PERMISSION_GRANTED
-                    )
-                } else mutableStateOf(true)
-            }
-
-            val permissionLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission(),
-                onResult = { isGranted ->
-                    hasNotificationPermission = isGranted
-                }
-            )
-
-            SideEffect {
-                if (!hasNotificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
+                else -> isSystemInDarkTheme
             }
 
             PY_ClockTheme(darkTheme = isDarkTheme) {
