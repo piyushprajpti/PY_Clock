@@ -26,7 +26,7 @@ import com.piyushprajpti.pyclock.service.stopwatch.StopWatchService
 import com.piyushprajpti.pyclock.service.timer.TimerService
 import com.piyushprajpti.pyclock.ui.theme.PY_ClockTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore("preference")
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
 
             val dataStoreRepository = DataStoreRepository(applicationContext.dataStore)
             val initialThemeValue = runBlocking {
-                dataStoreRepository.getValue(intPreferencesKey("selected_theme")).firstOrNull() ?: 0
+                dataStoreRepository.getValue(intPreferencesKey("selected_theme")).first() ?: 1
             }
 
             val themePref =
@@ -101,12 +101,11 @@ class MainActivity : ComponentActivity() {
                 )
 
             val selectedTheme = remember {
-                derivedStateOf { themePref.value ?: 0 }
+                derivedStateOf { themePref.value ?: 1 }
             }
 
             val isSystemInDarkTheme =
                 (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-
 
             val isDarkTheme = when (selectedTheme.value) {
                 2 -> false
