@@ -74,7 +74,7 @@ object NotificationModule {
             shouldVibrate()
             enableVibration(true)
             enableLights(true)
-            vibrationPattern = longArrayOf(0, 500, 500, 500)
+            vibrationPattern = longArrayOf(0, 1000, 1000, 1000)
             setBypassDnd(true)
             importance = NotificationManager.IMPORTANCE_HIGH
         }
