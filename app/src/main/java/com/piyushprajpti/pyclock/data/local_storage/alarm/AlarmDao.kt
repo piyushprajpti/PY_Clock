@@ -21,4 +21,7 @@ interface AlarmDao {
 
     @Query("UPDATE AlarmData SET isOn = :isOn WHERE id = :alarmId")
     fun updateAlarmStatus(alarmId: Int, isOn: Boolean)
+
+    @Query("SELECT * FROM AlarmData WHERE isOn = 1")
+    fun  getAllScheduledAlarms(): List<AlarmData>
 }

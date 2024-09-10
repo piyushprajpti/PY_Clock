@@ -51,7 +51,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 0
             )
         }
-        vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 500, 500, 500), 0))
+        vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 1000, 1000, 1000), 0))
 
         val notification =
             NotificationCompat.Builder(context.applicationContext, Constants.ALARM_CHANNEL_ID)
