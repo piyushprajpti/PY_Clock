@@ -112,7 +112,16 @@ fun TimerScreen(
 
     fun onPlayClick() {
 
-        if (inputMinutes.toInt() >= 60) {
+        val isInvalidInput =
+            inputHours.any { it.isDigit() } || inputMinutes.any { it.isDigit() } || inputSeconds.any { it.isDigit() }
+
+        if (!isInvalidInput) {
+            Toast.makeText(
+                context,
+                "Please enter valid numeric values for hours, minutes, and seconds",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else if (inputMinutes.toInt() >= 60) {
             Toast.makeText(context, "Minute input range is 0 to 59", Toast.LENGTH_SHORT).show()
         } else if (inputSeconds.toInt() >= 60) {
             Toast.makeText(context, "Second input range is 0 to 59", Toast.LENGTH_SHORT).show()
