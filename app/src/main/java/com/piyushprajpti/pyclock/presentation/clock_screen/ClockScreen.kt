@@ -2,19 +2,21 @@ package com.piyushprajpti.pyclock.presentation.clock_screen
 
 import android.content.res.Configuration
 import android.icu.util.Calendar
-import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -32,6 +34,8 @@ import java.util.Date
 fun ClockScreen(
     isDarkTheme: Boolean,
 ) {
+    val configuration = LocalConfiguration.current
+
     val calendar = Calendar.getInstance()
 
     val second = remember {
@@ -86,10 +90,36 @@ fun ClockScreen(
         }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        item {
+    if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ClockCanvas(
+                second = second.value,
+                minute = minute.value,
+                hour = hour.value,
+                outerColor = if (isDarkTheme) ClockPrimaryDT else ClockPrimaryLT,
+                innerColor = if (isDarkTheme) ClockSecondaryDT else ClockSecondaryLT,
+                primaryColor = if (isDarkTheme) Color.White else Color.Black,
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .fillMaxHeight()
+            )
+
+            Text(
+                text = "$dayOfTheWeek, $date $month $year",
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 22.sp,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+        }
+    } else {
+        Column(modifier = Modifier.fillMaxSize()) {
+
             Spacer(modifier = Modifier.height(5.dp))
 
             ClockCanvas(
@@ -100,14 +130,12 @@ fun ClockScreen(
                 innerColor = if (isDarkTheme) ClockSecondaryDT else ClockSecondaryLT,
                 primaryColor = if (isDarkTheme) Color.White else Color.Black,
                 modifier = Modifier
-                    .fillParentMaxWidth()
-                    .fillParentMaxHeight(0.4f)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.5f)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
-        }
 
-        item {
             Text(
                 text = "$dayOfTheWeek, $date $month $year",
                 modifier = Modifier.fillMaxWidth(),
