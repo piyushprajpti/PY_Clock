@@ -1,6 +1,6 @@
 package com.piyushprajpti.pyclock.presentation.stopwatch_screen
 
-import android.util.Log
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +46,7 @@ import com.piyushprajpti.pyclock.util.ActionButton
 import com.piyushprajpti.pyclock.util.CircularProgressCanvas
 import com.piyushprajpti.pyclock.util.Constants
 import com.piyushprajpti.pyclock.util.PlayButton
+import com.piyushprajpti.pyclock.util.fix
 import kotlinx.coroutines.delay
 
 @Composable
@@ -51,6 +55,7 @@ fun StopWatchScreen(
     stopWatchService: StopWatchService,
     commonViewModel: CommonViewModel = hiltViewModel()
 ) {
+    val configuration = LocalConfiguration.current
     val context = LocalContext.current
     val hours by stopWatchService.hours
     val minutes by stopWatchService.minutes
@@ -154,98 +159,198 @@ fun StopWatchScreen(
         isProgressBarActive = currentState == StopwatchState.Started
     }
 
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+    if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.4f),
+                    .weight(1f)
+                    .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressCanvas(
-                    isDarkTheme = isDarkTheme,
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    progress = progress
-                )
-
                 Text(
                     text = "$hours:$minutes:$seconds",
-                    fontSize = 32.sp,
+                    fontSize = 60.sp,
                     letterSpacing = 3.sp,
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (lapCount > 0) {
+                    Column(modifier = Modifier.weight(0.7f)) {
+                        LapSectionHeader()
 
-            if (lapCount > 0) {
-                LapSectionHeader()
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            items(lapsList.value.reversed()) {
+                                LapCard(
+                                    lapCount = it.lapCount,
+                                    lapTime = it.lapTime,
+                                    totalTime = it.totalTime
+                                )
+                            }
+                        }
+                    }
+                }
 
-                LazyColumn(
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(top = 5.dp)
+                        .weight(0.3f),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(lapsList.value.reversed()) {
-                        LapCard(
-                            lapCount = it.lapCount,
-                            lapTime = it.lapTime,
-                            totalTime = it.totalTime
+                    if (isStarted) {
+                        ActionButton(
+                            title = if (shouldReset) "Reset" else "Lap",
+                            titleColor = MaterialTheme.colorScheme.primary,
+                            backColor = MaterialTheme.colorScheme.secondary,
+                            onClick = {
+                                if (shouldReset) {
+                                    onResetClick()
+                                } else {
+                                    onLapClick()
+                                }
+                            }
                         )
+
+                        ActionButton(
+                            title = if (shouldReset) "Resume" else "Pause",
+                            titleColor = Color.White,
+                            backColor = if (shouldReset) VioletBlue else ErrorRed,
+                            onClick = {
+                                StopWatchServiceIntents.triggerForegroundService(
+                                    context = context,
+                                    action = if (currentState == StopwatchState.Started) Constants.ACTION_SERVICE_STOP else Constants.ACTION_SERVICE_START
+                                )
+                                isProgressBarActive = shouldReset
+                                shouldReset = !shouldReset
+                            }
+                        )
+                    } else {
+                        PlayButton {
+                            isStarted = true
+                            isProgressBarActive = true
+                            StopWatchServiceIntents.triggerForegroundService(
+                                context = context,
+                                action = Constants.ACTION_SERVICE_START
+                            )
+                        }
                     }
                 }
             }
         }
-
-        Row(
+    } else {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(top = 20.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            if (isStarted) {
-                ActionButton(
-                    title = if (shouldReset) "Reset" else "Lap",
-                    titleColor = MaterialTheme.colorScheme.primary,
-                    backColor = MaterialTheme.colorScheme.secondary,
-                    onClick = {
-                        if (shouldReset) {
-                            onResetClick()
-                        } else {
-                            onLapClick()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.45f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressCanvas(
+                        isDarkTheme = isDarkTheme,
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        progress = progress
+                    )
+
+                    Text(
+                        text = "$hours:$minutes:$seconds",
+                        fontSize = 40.sp.fix,
+                        letterSpacing = 3.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (lapCount > 0) {
+                    LapSectionHeader()
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        items(lapsList.value.reversed()) {
+                            LapCard(
+                                lapCount = it.lapCount,
+                                lapTime = it.lapTime,
+                                totalTime = it.totalTime
+                            )
                         }
                     }
-                )
+                }
+            }
 
-                ActionButton(
-                    title = if (shouldReset) "Resume" else "Pause",
-                    titleColor = Color.White,
-                    backColor = if (shouldReset) VioletBlue else ErrorRed,
-                    onClick = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(top = 20.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isStarted) {
+                    ActionButton(
+                        title = if (shouldReset) "Reset" else "Lap",
+                        titleColor = MaterialTheme.colorScheme.primary,
+                        backColor = MaterialTheme.colorScheme.secondary,
+                        onClick = {
+                            if (shouldReset) {
+                                onResetClick()
+                            } else {
+                                onLapClick()
+                            }
+                        }
+                    )
+
+                    ActionButton(
+                        title = if (shouldReset) "Resume" else "Pause",
+                        titleColor = Color.White,
+                        backColor = if (shouldReset) VioletBlue else ErrorRed,
+                        onClick = {
+                            StopWatchServiceIntents.triggerForegroundService(
+                                context = context,
+                                action = if (currentState == StopwatchState.Started) Constants.ACTION_SERVICE_STOP else Constants.ACTION_SERVICE_START
+                            )
+                            isProgressBarActive = shouldReset
+                            shouldReset = !shouldReset
+                        }
+                    )
+                } else {
+                    PlayButton {
+                        isStarted = true
+                        isProgressBarActive = true
                         StopWatchServiceIntents.triggerForegroundService(
                             context = context,
-                            action = if (currentState == StopwatchState.Started) Constants.ACTION_SERVICE_STOP else Constants.ACTION_SERVICE_START
+                            action = Constants.ACTION_SERVICE_START
                         )
-                        isProgressBarActive = shouldReset
-                        shouldReset = !shouldReset
                     }
-                )
-            } else {
-                PlayButton {
-                    isStarted = true
-                    isProgressBarActive = true
-                    StopWatchServiceIntents.triggerForegroundService(
-                        context = context,
-                        action = Constants.ACTION_SERVICE_START
-                    )
                 }
             }
         }
