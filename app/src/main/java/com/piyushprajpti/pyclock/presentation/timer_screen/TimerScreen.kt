@@ -1,5 +1,6 @@
 package com.piyushprajpti.pyclock.presentation.timer_screen
 
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +41,7 @@ import com.piyushprajpti.pyclock.util.ActionButton
 import com.piyushprajpti.pyclock.util.CircularProgressCanvas
 import com.piyushprajpti.pyclock.util.Constants
 import com.piyushprajpti.pyclock.util.PlayButton
+import com.piyushprajpti.pyclock.util.fix
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,6 +51,7 @@ fun TimerScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
+    val configuration = LocalConfiguration.current
     val context = LocalContext.current
     val hours by timerService.hours
     val minutes by timerService.minutes
@@ -159,47 +163,29 @@ fun TimerScreen(
         )
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        if (isStarted) {
-            Column(
+    if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
                     .weight(1f)
+                    .fillMaxSize(), contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.4f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressCanvas(
-                        isDarkTheme = isDarkTheme,
-                        modifier = Modifier.fillMaxSize(),
-                        progress = progress.value
-                    )
+                if (isStarted) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "$hours:$minutes:$seconds",
+                            fontSize = 60.sp,
+                            letterSpacing = 3.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
 
-                    Text(
-                        text = "$hours:$minutes:$seconds",
-                        fontSize = 32.sp,
-                        letterSpacing = 3.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Spacer(modifier = Modifier.height(30.dp))
-
+                    }
+                } else {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -224,8 +210,16 @@ fun TimerScreen(
                         )
                     }
                 }
+            }
 
-                Column(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = if (isStarted) Arrangement.Center else Arrangement.SpaceBetween
+            ) {
+                if (!isStarted) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -247,38 +241,159 @@ fun TimerScreen(
                             onPlayClick()
                         }
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(50.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isStarted) {
+                        ActionButton(
+                            title = "Delete",
+                            titleColor = MaterialTheme.colorScheme.primary,
+                            backColor = MaterialTheme.colorScheme.secondary,
+                            onClick = { onDeleteClick() }
+                        )
+
+                        ActionButton(
+                            title = if (isPaused) "Resume" else "Pause",
+                            titleColor = Color.White,
+
+
+                            backColor = if (isPaused) VioletBlue else ErrorRed,
+                            onClick = { onPauseClick() }
+                        )
+                    } else {
+                        PlayButton(onClick = { onPlayClick() })
+                    }
                 }
             }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(top = 20.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
             if (isStarted) {
-                ActionButton(
-                    title = "Delete",
-                    titleColor = MaterialTheme.colorScheme.primary,
-                    backColor = MaterialTheme.colorScheme.secondary,
-                    onClick = { onDeleteClick() }
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.45f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressCanvas(
+                            isDarkTheme = isDarkTheme,
+                            modifier = Modifier.fillMaxSize(),
+                            progress = progress.value
+                        )
 
-                ActionButton(
-                    title = if (isPaused) "Resume" else "Pause",
-                    titleColor = Color.White,
-
-
-                    backColor = if (isPaused) VioletBlue else ErrorRed,
-                    onClick = { onPauseClick() }
-                )
+                        Text(
+                            text = "$hours:$minutes:$seconds",
+                            fontSize = 40.sp.fix,
+                            letterSpacing = 3.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
             } else {
-                PlayButton(onClick = { onPlayClick() })
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            NumberInputField(
+                                label = "HH",
+                                value = inputHours,
+                                onValueChange = { inputHours = it }
+                            )
+
+                            NumberInputField(
+                                label = "MM",
+                                value = inputMinutes,
+                                onValueChange = { inputMinutes = it }
+                            )
+
+                            NumberInputField(
+                                label = "SS",
+                                value = inputSeconds,
+                                onValueChange = { inputSeconds = it }
+                            )
+                        }
+                    }
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TimeBubble(time = "00:02:00") {
+                                inputMinutes = "02"
+                                inputSeconds = "00"
+                                onPlayClick()
+                            }
+                            TimeBubble(time = "00:05:00") {
+                                inputMinutes = "05"
+                                inputSeconds = "00"
+                                onPlayClick()
+                            }
+                            TimeBubble(time = "00:10:00") {
+                                inputMinutes = "10"
+                                inputSeconds = "00"
+                                onPlayClick()
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(50.dp))
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(top = 20.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isStarted) {
+                    ActionButton(
+                        title = "Delete",
+                        titleColor = MaterialTheme.colorScheme.primary,
+                        backColor = MaterialTheme.colorScheme.secondary,
+                        onClick = { onDeleteClick() }
+                    )
+
+                    ActionButton(
+                        title = if (isPaused) "Resume" else "Pause",
+                        titleColor = Color.White,
+
+
+                        backColor = if (isPaused) VioletBlue else ErrorRed,
+                        onClick = { onPauseClick() }
+                    )
+                } else {
+                    PlayButton(onClick = { onPlayClick() })
+                }
             }
         }
     }
