@@ -1,5 +1,6 @@
 package com.piyushprajpti.pyclock.presentation.alarm_screen.util
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +37,8 @@ import com.piyushprajpti.pyclock.util.DialogBox
 fun TimeSelector(
     timePickerState: TimePickerState
 ) {
+    val configuration = LocalConfiguration.current
+
     val showDialogBox = remember {
         mutableStateOf(false)
     }
@@ -94,7 +98,8 @@ fun TimeSelector(
             },
             onOkClick = {
                 showDialogBox.value = false
-            }
+            },
+            boxWidth = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 0.75f else 0.9f
         )
     }
 }

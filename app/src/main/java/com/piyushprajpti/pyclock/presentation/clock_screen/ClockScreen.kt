@@ -134,7 +134,7 @@ fun ClockScreen(
                     .fillMaxHeight(0.5f)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
             Text(
                 text = "$dayOfTheWeek, $date $month $year",

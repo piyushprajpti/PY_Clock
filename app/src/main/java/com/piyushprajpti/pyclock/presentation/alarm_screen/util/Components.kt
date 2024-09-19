@@ -1,7 +1,20 @@
 package com.piyushprajpti.pyclock.presentation.alarm_screen.util
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.piyushprajpti.pyclock.R
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -101,3 +114,22 @@ fun convertDateTimeToString(millis: Long): Quadruple<String, String, String, Str
 }
 
 data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+
+@Composable
+fun NoAlarmDisplay() {
+    Column {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_no_alarms),
+            contentDescription = "no alarms",
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(100.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "No alarms",
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 20.sp
+        )
+    }
+}
