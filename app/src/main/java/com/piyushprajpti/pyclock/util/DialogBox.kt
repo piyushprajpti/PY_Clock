@@ -2,14 +2,16 @@ package com.piyushprajpti.pyclock.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,49 +36,47 @@ fun DialogBox(
         onDismissRequest = { onCancelClick() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth(boxWidth)
                 .background(MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
                 .padding(
                     horizontal = if (boxWidth == 1f) 10.dp else 20.dp,
                     vertical = 20.dp
-                ),
+                )
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
-                if (title != null) {
-                    Text(
-                        text = title.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            if (title != null) {
+                Text(
+                    text = title.toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
-            item { content() }
+            content()
 
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-                    DialogActionButton(title = "CANCEL", onClick = { onCancelClick() })
+                DialogActionButton(title = "CANCEL", onClick = { onCancelClick() })
 
-                    Spacer(modifier = Modifier.width(20.dp))
+                Spacer(modifier = Modifier.width(20.dp))
 
-                    DialogActionButton(title = "OK", onClick = { onOkClick() })
+                DialogActionButton(title = "OK", onClick = { onOkClick() })
 
-                }
             }
+
         }
     }
 }

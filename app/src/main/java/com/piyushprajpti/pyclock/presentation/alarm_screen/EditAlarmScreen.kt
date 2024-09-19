@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -199,46 +202,39 @@ fun EditAlarmScreen(
             }
         }
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(it)
                 .padding(20.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            item {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Alarm Time",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 24.sp,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
-            }
-
-            item {
-                TimeSelector(
-                    timePickerState = timePickerState
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Alarm Time",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 24.sp,
+                    textDecoration = TextDecoration.Underline
                 )
             }
 
-            item { Spacer(modifier = Modifier.height(30.dp)) }
+            TimeSelector(
+                timePickerState = timePickerState
+            )
 
-            item {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Alarm Date",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 24.sp,
-                        textDecoration = TextDecoration.Underline
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(30.dp))
 
-            item {
-                DateSelector(
-                    datePickerState = datePickerState
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Alarm Date",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 24.sp,
+                    textDecoration = TextDecoration.Underline
                 )
             }
+
+            DateSelector(
+                datePickerState = datePickerState
+            )
         }
     }
 }
