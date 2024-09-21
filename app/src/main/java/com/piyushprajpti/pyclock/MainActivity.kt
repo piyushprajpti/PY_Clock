@@ -127,7 +127,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
+
         unbindService(stopwatchConnection)
         isStopwatchBound = false
+
+        unbindService(timerConnection)
+        isTimerBound = false
     }
 }

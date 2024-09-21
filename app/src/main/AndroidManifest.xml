@@ -20,20 +20,22 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.App.Starting"
+        android:theme="@style/Theme.PY_Clock"
         tools:targetApi="31">
+
+        <!-- Main Activity with Splash Screen Theme -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.PY_Clock">
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Alarm Activity -->
         <activity
             android:name=".service.alarm.AlarmActivity"
             android:exported="true"
@@ -43,24 +45,28 @@
             android:theme="@style/Theme.PY_Clock"
             android:turnScreenOn="true" />
 
+        <!-- Stopwatch Service -->
         <service
             android:name=".service.stopwatch.StopWatchService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="shortService" />
 
+        <!-- Timer Service -->
         <service
             android:name=".service.timer.TimerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="shortService" />
 
+        <!-- Alarm Receiver -->
         <receiver
             android:name=".service.alarm.AlarmReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="py clock receiver" />
 
+        <!-- Boot Completed Receiver -->
         <receiver
             android:name=".service.boot.BootCompletedReceiver"
             android:exported="false">
