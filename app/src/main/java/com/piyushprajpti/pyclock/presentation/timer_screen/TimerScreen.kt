@@ -117,8 +117,7 @@ fun TimerScreen(
     fun onPlayClick() {
 
         val isInvalidInput =
-            inputHours.any { it.isDigit() } || inputMinutes.any { it.isDigit() } || inputSeconds.any { it.isDigit() }
-
+            inputHours.any { it.isDigit() } && inputMinutes.any { it.isDigit() } && inputSeconds.any { it.isDigit() }
         if (!isInvalidInput) {
             Toast.makeText(
                 context,
